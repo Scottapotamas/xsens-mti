@@ -10,15 +10,15 @@ message_handler_ref_t inbound_handler_table[] =
     { .id = GOTOCONFIGACK, .handler_fn = NULL },
     { .id = GOTOMEASUREMENTACK, .handler_fn = NULL },
     { .id = RESETACK, .handler_fn = NULL },
-    { .id = DEVICEID, .handler_fn = &handle_device_id },
-    { .id = PRODUCTCODE, .handler_fn = &handle_product_code },
-    { .id = HARDWAREVERSION, .handler_fn = &handle_hardware_version }, 
-    { .id = FIRMWAREREV, .handler_fn = &handle_firmware_version }, 
-    { .id = SELFTESTRESULTS, .handler_fn = &handle_selftest_results }, 
-    { .id = ERROR, .handler_fn = &handle_error }, 
-    { .id = WARNING, .handler_fn = &handle_warning }, 
+    { .id = DEVICEID, .handler_fn = &xsens_internal_handle_device_id },
+    { .id = PRODUCTCODE, .handler_fn = &xsens_internal_handle_product_code },
+    { .id = HARDWAREVERSION, .handler_fn = &xsens_internal_handle_hardware_version }, 
+    { .id = FIRMWAREREV, .handler_fn = &xsens_internal_handle_firmware_version }, 
+    { .id = SELFTESTRESULTS, .handler_fn = &xsens_internal_handle_selftest_results }, 
+    { .id = ERROR, .handler_fn = &xsens_internal_handle_error }, 
+    { .id = WARNING, .handler_fn = NULL }, 
     { .id = CONFIGURATION, .handler_fn = NULL }, 
-    { .id = MTDATA2, .handler_fn = &handle_mdata2 }, 
+    { .id = MTDATA2, .handler_fn = &xsens_internal_handle_mdata2 }, 
     { .id = REQLATLONALTACK, .handler_fn = NULL }, 
     { .id = SETLATLONALTACK, .handler_fn = NULL }, 
     { .id = REQFILTERPROFILEACK, .handler_fn = NULL }, 
@@ -31,25 +31,17 @@ message_handler_ref_t inbound_handler_table[] =
     { .id = FORWARDGNSSDATAACK, .handler_fn = NULL }, 
 };
 
-
-// Setup callbacks
-void init( interface_t *interface )
-{
-
-}
-
-
 // Helper to parse inbound data with one call
-void parse_buffer( interface_t *interface, uint8_t *buffer, uint16_t size )
+void xsens_mti_parse_buffer( interface_t *interface, uint8_t *buffer, uint16_t size )
 {
     for( uint16_t i = 0; i < size; i++)
     {
-        parse( interface, buffer[i] );
+        xsens_mti_parse( interface, buffer[i] );
     }
 }
 
 // Run each byte through the packet-level statemachine
-void parse( interface_t *interface, uint8_t byte )
+void xsens_mti_parse( interface_t *interface, uint8_t byte )
 {
     // CRC is the sum of bytes including the CRC byte (ex PREAMBLE)
     if( interface->state != PARSER_PREAMBLE )
@@ -62,7 +54,7 @@ void parse( interface_t *interface, uint8_t byte )
         case PARSER_PREAMBLE:
             if( byte == PREAMBLE_BYTE )
             {
-                reset_parser( interface );
+                xsens_mti_reset_parser( interface );
                 interface->state = PARSER_ADDRESS;
             }
         break;
@@ -128,7 +120,7 @@ void parse( interface_t *interface, uint8_t byte )
             {
                 // Packet was successfully recieved
                 // Run the payload handling function
-                handle_payload( interface );
+                xsens_mti_handle_payload( interface );
             }
             else
             {
@@ -140,7 +132,7 @@ void parse( interface_t *interface, uint8_t byte )
     }
 }
 
-void reset_parser( interface_t *interface )
+void xsens_mti_reset_parser( interface_t *interface )
 {
     // Clear the parser state and buffers
     memset( &(interface->packet), 0, sizeof(packet_buffer_t) );
@@ -149,12 +141,12 @@ void reset_parser( interface_t *interface )
 }
 
 // With a valid packet, process the payload
-void handle_payload( interface_t *interface )
+void xsens_mti_handle_payload( interface_t *interface )
 {
     packet_buffer_t *packet = &(interface->packet);
 
     // Search the inbound handler table for a match
-    message_handler_ref_t *handler = find_inbound_handler_table_entry( packet->message_id );
+    message_handler_ref_t *handler = xsens_mti_find_inbound_handler_entry( packet->message_id );
 
     // If the ID is recognised, call the handler function (if it exists)
     if( handler )
@@ -168,12 +160,12 @@ void handle_payload( interface_t *interface )
 
 }
 
-bool override_id_handler( uint8_t id, callback_payload_t *user_fn )
+bool xsens_mti_override_id_handler( uint8_t id, callback_payload_t *user_fn )
 {
     if( user_fn )
     {
         // Find the ID in the inbound handler 'jump table'
-        message_handler_ref_t *handler = find_inbound_handler_table_entry( id );
+        message_handler_ref_t *handler = xsens_mti_find_inbound_handler_entry( id );
         
         if( handler )
         {
@@ -182,7 +174,7 @@ bool override_id_handler( uint8_t id, callback_payload_t *user_fn )
     }
 }
 
-message_handler_ref_t * find_inbound_handler_table_entry( uint8_t find_id )
+message_handler_ref_t * xsens_mti_find_inbound_handler_entry( uint8_t find_id )
 {
     
     uint8_t table_length = sizeof(inbound_handler_table) / sizeof(message_handler_ref_t);
@@ -203,7 +195,7 @@ message_handler_ref_t * find_inbound_handler_table_entry( uint8_t find_id )
 
 
 
-void handle_device_id( packet_buffer_t *packet )
+void xsens_internal_handle_device_id( packet_buffer_t *packet )
 {
     printf("DeviceID Handler\n");
     if( packet->length == 4)
@@ -221,14 +213,14 @@ void handle_device_id( packet_buffer_t *packet )
 
 }
 
-void handle_product_code( packet_buffer_t *packet )
+void xsens_internal_handle_product_code( packet_buffer_t *packet )
 {
     printf("ProductCode Handler\n");
     // ASCII formatted code max 20 bytes
 
 }
 
-void handle_hardware_version( packet_buffer_t *packet )
+void xsens_internal_handle_hardware_version( packet_buffer_t *packet )
 {
     printf("HardwareVersion Handler\n");
     uint8_t hw_version[2];
@@ -239,7 +231,7 @@ void handle_hardware_version( packet_buffer_t *packet )
     printf("  %d, %d\n", hw_version[0], hw_version[1]);
 }
 
-void handle_firmware_version( packet_buffer_t *packet )
+void xsens_internal_handle_firmware_version( packet_buffer_t *packet )
 {
     printf("FirmwareVersion Handler\n");
     uint8_t major = packet->payload[0];
@@ -255,14 +247,14 @@ void handle_firmware_version( packet_buffer_t *packet )
     printf("    SCM:   %d\n", scm);
 }
 
-void handle_selftest_results( packet_buffer_t *packet )
+void xsens_internal_handle_selftest_results( packet_buffer_t *packet )
 {
     printf("SelfTest Handler\n");
 
-    
+
 }
 
-void handle_error( packet_buffer_t *packet )
+void xsens_internal_handle_error( packet_buffer_t *packet )
 {
     uint8_t error_code = packet->payload[0];
 
@@ -299,13 +291,8 @@ void handle_error( packet_buffer_t *packet )
 
 }
 
-void handle_warning( packet_buffer_t *packet )
-{
-    printf("Warning Handler\n");
 
-}
-
-void handle_mdata2( packet_buffer_t *packet )
+void xsens_internal_handle_mdata2( packet_buffer_t *packet )
 {
     // MData2 packets contain 1 to n smaller packets 
     // with variable length fields, see xsens_mdata2.c/.h

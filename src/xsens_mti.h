@@ -63,16 +63,13 @@ typedef struct
 
 
 
-
-void init( interface_t *interface );
-
 // Parse inbound bytes received from the MTi device
-void parse_buffer( interface_t *interface, uint8_t *buffer, uint16_t size );
-void parse( interface_t *interface, uint8_t byte );
-void reset_parser( interface_t *interface );
+void xsens_mti_parse_buffer( interface_t *interface, uint8_t *buffer, uint16_t size );
+void xsens_mti_parse( interface_t *interface, uint8_t byte );
+void xsens_mti_reset_parser( interface_t *interface );
 
 // Add or override the internal packet handler function with a userspace function
-bool override_id_handler( uint8_t id, callback_payload_t *user_fn );
+bool xsens_mti_override_id_handler( uint8_t id, callback_payload_t *user_fn );
 
 
 
