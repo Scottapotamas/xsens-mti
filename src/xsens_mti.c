@@ -253,6 +253,142 @@ void handle_warning( packet_buffer_t *packet )
 
 }
 
+
+typedef enum {
+    XDI_PARSE_ID_B1,
+    XDI_PARSE_ID_B2,
+    XDI_PARSE_LENGTH,
+    XDI_PARSE_DATA
+} mdata2_parser_state_t;
+
+typedef struct 
+{
+    uint16_t id;
+    uint8_t length;
+    uint8_t payload[255];   // TODO: work out what size is actually needed
+} mdata2_packet_t;
+
+enum  {
+    XDI_UTC_TIME = 0x1010,
+    XDI_PACKET_COUNTER = 0x1020,
+    XDI_SAMPLE_TIME_FINE = 0x1060,
+    XDI_SAMPLE_TIME_COARSE = 0x1070,
+
+    XDI_TEMPERATURE = 0x0810,
+
+    XDI_QUATERNION = 0x2010,
+    XDI_ROTATION_MATRIX = 0x2020,
+    XDI_EULER_ANGLES = 0x2030,
+
+    XDI_BARO_PRESSURE = 0x3010,
+
+    XDI_DELTA_V = 0x4010,
+    XDI_ACCELERATION = 0x4020,
+    XDI_FREE_ACCELERATION = 0x4030,
+    XDI_ACCELERATION_HIGH_RATE = 0x4040,
+
+    XDI_ALTITUDE_ELLIPSOID = 0x5020,
+    XDI_POSITION_ECEF = 0x5030,
+    XDI_LAT_LON = 0x5040,
+    XDI_GNSS_PVT_DATA = 0x7010,
+    XDI_GNSS_SAT_INFO = 0x7020,
+    XDI_GNSS_PVT_PULSE = 0x7030,
+
+    XDI_RATE_OF_TURN = 0x8020,
+    XDI_DELTA_Q = 0x8030,
+    XDI_RATE_OF_TURN_HIGH_RATE = 0x8040,
+
+    XDI_RAW_ACC_GYRO_MAG_TEMP = 0xA010,
+    XDI_RAW_GYRO_TEMP = 0xA020,
+
+    XDI_MAGNETIC_FIELD = 0xC020,
+    XDI_VELOCITY_XYZ = 0xD010,
+
+    XDI_STATUS_BYTE = 0xE010,
+    XDI_STATUS_WORD = 0xE020,
+    XDI_DEVICE_ID = 0xE080,
+    XDI_LOCATION_ID = 0xE090,
+
+
+} XDA_TYPE_IDENTIFIER;
+
+void handle_mdata2_output( mdata2_packet_t *output );
+
+// MData2 packets have a series of smaller structures of data
+// This handler walks through the buffer, identifies the XDA type from two bytes
+// Then applies relevant conversions back into native types/structures as necessary
+// Packets don't have a fixed number of child elements
+void handle_mdata2( packet_buffer_t *packet )
+{
+    mdata2_parser_state_t md2_state = XDI_PARSE_ID_B1;
+    mdata2_packet_t output = { 0 };
+    uint8_t bytes_consumed = 0;
+
+    // Walk through the packet and run a tiny statemachine
+    // to parse the sub-fields
+    for( uint16_t i = 0; i < packet->length; i++ )
+    {
+        switch( md2_state )
+        {
+            case XDI_PARSE_ID_B1:
+                // High byte
+                output.id = (uint16_t)((uint16_t)packet->payload[i] << 8u);
+                md2_state = XDI_PARSE_ID_B2;
+            break;
+
+            case XDI_PARSE_ID_B2:
+                // Low byte
+                output.id |= (uint16_t)((uint16_t)packet->payload[i] );
+                md2_state = XDI_PARSE_LENGTH;
+            break;
+
+            case XDI_PARSE_LENGTH:
+                // Length is one byte
+                output.length = packet->payload[i];
+                md2_state = XDI_PARSE_DATA;
+            break;
+
+            case XDI_PARSE_DATA:
+                // Copy data across
+                output.payload[bytes_consumed] = packet->payload[i];
+                bytes_consumed++;
+
+                // Once the field's data been copied to our sub-buffer,
+                // handle that
+                if( bytes_consumed >= output.length )
+                {
+                    handle_mdata2_output( &output );
+
+                    // Cleanup our state before parsing more fields
+                    md2_state = XDI_PARSE_ID_B1;
+                    bytes_consumed = 0;
+                    memset( &output, 0, sizeof(mdata2_packet_t) );
+                }
+            break;
+        }
+
+    }
+    
+    // Finished MData2 parsing in payload
+}
+
+void handle_mdata2_output( mdata2_packet_t *output )
+{
+    // With the 'isolated' field from the rest of the payload,
+    // find the matching XID and apply post-processing strategies
+    switch( output->id )
+    {
+        case XDI_PACKET_COUNTER:
+            printf("PacketCounter with %d bytes\n", output->length );
+        break;
+
+        case XDI_QUATERNION:
+            printf("Quaternion with %d bytes\n", output->length );
+        break;
+
+        default:
+            printf("MData2 Unknown ID 0x%X with %d bytes\n", output->id, output->length );
         break;
     }
+
 }

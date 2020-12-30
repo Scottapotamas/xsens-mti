@@ -33,7 +33,9 @@ Items: 11
 
 ## Raw Data
 
+```
 10 20 02 A6 55 10 60 04 00 57 47 2E 20 10 10 3F 7F 7D C4 BC 10 10 7D 3B A1 57 70 BD 7E C6 56 40 20 0C BD A2 1A F8 BE 2A 8E 96 41 1D 27 A2 40 10 0C B9 4F C8 00 B9 DA 24 00 3C C9 28 80 40 30 0C 3C 02 C8 9C 3C 35 F6 C8 3C DB 0C 00 80 20 0C BB B1 7D 81 BB 96 32 00 3C 01 E8 41 80 30 10 3F 80 00 00 B6 E3 30 01 B6 C0 40 00 37 26 48 00 C0 20 0C BE 99 9C 24 3F B6 1B 56 3F 16 6A EB 30 10 04 00 01 86 DE E0 20 04 00 40 00 03
+```
 
 ## Decoded Info
 
@@ -193,7 +195,11 @@ Message ID (MID): 36
 
 ## Decoded Info
 
+```
 {(PacketCounter, 2 bytes, 64389), (SampleTimeFine, 4 bytes, 27564254), (Quaternion|Float|ENU, 16 bytes, (q0: 0.66437358, q1: -0.42175028, q2: 0.02720882, q3: 0.61643654)), (Acceleration|Float, 12 bytes, (accX: -30.28455162, accY: -29.60960007, accZ: -71.76024628)), (DeltaV|Float, 12 bytes, (x: -0.07186279, y: -0.07130830, z: -0.18206376)), (FreeAcceleration|Float, 12 bytes, (freeAccX: 52.39491272, freeAccY: -62.83823395, freeAccZ: -25.59408188)), (RateOfTurn|Float, 12 bytes, (gyrX: 4.16570139, gyrY: -10.33340263, gyrZ: -4.51734877)), (DeltaQ|Float, 16 bytes, (q0: 0.99988699, q1: 0.00520693, q2: -0.01291627, q3: -0.00564647)), (MagneticField|Float, 12 bytes, (magX: 0.43057421, magY: -0.23942292, magZ: 1.37189472)), (BaroPressure, 4 bytes, Pressure: 100062), (StatusWord, 4 bytes, 00000000010010000001010000000001)}
+```
+
+
 
 # Packet Example 6
 
@@ -376,7 +382,7 @@ DeviceID: 037003F8
 (DeviceID: 037003F8, Sample Period: 1152, OutputSkipFactor: 0, SyncInMode: 0, SyncInSkipFactor: 0, SyncInOffset: 0, (Year: 0, Month: 0, Day: 0), (Hour: 0, Min: 0, Sec: 0, Ms: 0), reserved: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00, reserved: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00, numDevices: 1, DeviceID: 037003F8, MTDataLength: 0, OutputMode: 0, OutputSettings: 1, reserved: 00 27 01 08 02 49 05 01)
 ```
 
-## FirmareRev - 0x13
+## FirmwareRev - 0x13
 
 0B
 01 08 02 00 00 00 25 00 01 15 34
