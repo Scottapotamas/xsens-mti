@@ -8,14 +8,28 @@ extern "C" {
 #include "stdint.h"
 #include "stdbool.h"
 
+#define PREAMBLE_BYTE 0xFA
+#define ADDRESS_BYTE 0xFF
+
+#define LENGTH_EXTENDED_MODE 0xFF
+#define LENGTH_NONE 0x00
+
+
 typedef enum  {
     EVT_BLAH = 0,
 } EventFlags_t;
 
-typedef void (*callback_event_t)(EventFlags_t);
 
-typedef void (*callback_data_out_t)(uint8_t*, uint16_t);
+// The basic concept of a valid decoded packet
+typedef struct 
+{
+    uint8_t message_id;
+    uint16_t length;
+    uint8_t payload[2048];
+} packet_buffer_t;
 
+
+// Packet state machine values
 typedef enum {
     PARSER_PREAMBLE = 0,
     PARSER_ADDRESS,
@@ -27,13 +41,14 @@ typedef enum {
     PARSER_CRC,
 } parser_state_t;
 
-typedef struct 
-{
-    uint8_t message_id;
-    uint16_t length;
-    uint8_t payload[2048];
-} packet_buffer_t;
+// Userspace callback to notify application layer code of a relevant event
+typedef void (*callback_event_t)(EventFlags_t);
 
+// Callback to userspace serial write function
+// Uses args for a uint8_t buffer of bytes, with a uint16_t size value
+typedef void (*callback_data_out_t)(uint8_t*, uint16_t);
+
+// Userspace storage for library state and buffers
 typedef struct
 {
     parser_state_t state;
@@ -46,22 +61,32 @@ typedef struct
 } interface_t;
 
 
+// Callback to internal (or userspace) handler function
+// Function is passed a successfully receieved packet for processing
+typedef void (*callback_payload_t)(packet_buffer_t*);
+
+// Entry for a list of function pointers to handle each MID correctly
+typedef struct
+{
+    uint8_t id;
+    callback_payload_t *handler_fn;
+} message_handler_ref_t;
+
+
+
 
 void init( interface_t *interface );
 
+// Parse inbound bytes received from the MTi device
 void parse_buffer( interface_t *interface, uint8_t *buffer, uint16_t size );
 void parse( interface_t *interface, uint8_t byte );
 void reset_parser( interface_t *interface );
 
+// Add or override the internal packet handler function with a userspace function
+bool override_id_handler( uint8_t id, callback_payload_t *user_fn );
 
 
-#define PREAMBLE_BYTE 0xFA
-#define ADDRESS_BYTE 0xFF
-
-#define LENGTH_EXTENDED_MODE 0xFF
-#define LENGTH_NONE 0x00
-
-enum  {
+enum {
     WAKEUP = 0x3E,
     GOTOCONFIGACK = 0x31,
     GOTOMEASUREMENTACK = 0x11,
@@ -87,7 +112,7 @@ enum  {
     FORWARDGNSSDATAACK = 0xE3, 
 } MESSAGE_ID_INBOUND;
 
-enum  {
+enum {
     WAKEUPACK = 0x3F,
     GOTOCONFIG = 0x30,
     GOTOMEASUREMENT = 0x10,
@@ -138,14 +163,6 @@ enum  {
     SETINITIALHEADING = 0xD6,
     FORWARDGNSSDATA = 0xE2,
 } MESSAGE_ID_OUTBOUND;
-
-typedef struct
-{
-    uint8_t value;
-    uint8_t id;
-    uint8_t length;
-    uint8_t direction;
-} mid_helper_t;
 
 
 enum  {
