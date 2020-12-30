@@ -5,10 +5,7 @@
 extern "C" {
 #endif
 
-
 #include "xsens_constants.h"
-
-
 
 
 // Packet state machine values
@@ -22,14 +19,6 @@ typedef enum {
     PARSER_PAYLOAD,
     PARSER_CRC,
 } parser_state_t;
-
-// Userspace callback to notify application layer code of a relevant event
-// These events are accompanied by output-ready decoded data
-typedef void (*callback_event_t)(EventFlag_t, EventData_t*);
-
-// Callback to userspace serial write function
-// Uses args for a uint8_t buffer of bytes, with a uint16_t size value
-typedef void (*callback_data_out_t)(uint8_t*, uint16_t);
 
 // Userspace storage for library state and buffers
 typedef struct

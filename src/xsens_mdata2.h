@@ -23,9 +23,9 @@ typedef struct
 
 
 
-void xsens_mdata2_process( packet_buffer_t *packet );
+void xsens_mdata2_process( packet_buffer_t *packet, callback_event_t evt_cb );
 
-void xsens_mdata2_decode_field( mdata2_packet_t *output );
+void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb );
 
 
 #ifdef __cplusplus

@@ -28,14 +28,34 @@ void mock_output_function( uint8_t *buffer, uint16_t size )
     printf("Output of %d bytes\n", size);
 }
 
+// Because the library callbacks are fired once per output type,
+// its unclear how to handle that at a test level
+// so just cache all the callbacks and check against those?
+#define CACHE_DEPTH 20
+
+EventFlag_t cb_evt_flag_cache[CACHE_DEPTH];
+EventData_t cb_evt_data_cache[CACHE_DEPTH];
+uint8_t cache_usage = 0;
+
 void mock_event_function( EventFlag_t event, EventData_t *data )
 {
-    printf("Notified of evt: %d\n", event);
+    cb_evt_flag_cache[cache_usage] = event;
+    memcpy( &cb_evt_data_cache[cache_usage], data, sizeof(EventData_t));
+    cache_usage++;
+
+    if( cache_usage > CACHE_DEPTH )
+    {
+        TEST_FAIL_MESSAGE("Test harness cache ran out of room");
+    }
 }
 
 // SETUP, TEARDOWN
 void setUp(void)
 {
+    memset( &cb_evt_flag_cache, 0, sizeof(cb_evt_flag_cache) );
+    memset( &cb_evt_data_cache, 0, sizeof(cb_evt_data_cache) );
+    cache_usage = 0;
+
     memset( &test_imu, 0, sizeof(test_imu) );
     test_imu.output_cb = &mock_output_function;
     test_imu.event_cb = &mock_event_function;
@@ -130,6 +150,8 @@ void test_parse_Configuration( void )
 
     xsens_mti_parse_buffer( &test_imu, &test_packet, sizeof(test_packet));
     
+    
+
     TEST_IGNORE();
 
 }
@@ -183,13 +205,38 @@ void test_parse_mdata2_quat_minimal( void )
 
     xsens_mti_parse_buffer( &test_imu, &test_packet, sizeof(test_packet));
 
-    TEST_IGNORE();
+    // PacketCounter
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_PACKET_COUNT, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U16, cb_evt_data_cache[0].type );
+    TEST_ASSERT_EQUAL_INT( 18050, cb_evt_data_cache[0].data.u2);
+  
+    // SampleTimeFine
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TIME_FINE, cb_evt_flag_cache[1] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U32, cb_evt_data_cache[1].type );
+    TEST_ASSERT_EQUAL_INT( 29686846, cb_evt_data_cache[1].data.u4);
+
+    // Quaternion
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_QUATERNION, cb_evt_flag_cache[2] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[2].type );
+    float golden_quat[4] = { 0.94455600, -0.32308814, 0.01374718, -0.05691256 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_quat, cb_evt_data_cache[2].data.f4x4, 4);
+
+    // StatusWord
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_STATUS_WORD, cb_evt_flag_cache[3] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U32, cb_evt_data_cache[3].type );
+    union XDI_STATUS32_UNION status;
+    status.word = cb_evt_data_cache[3].data.u4;
+    TEST_ASSERT_TRUE( status.bitfield.self_test );
+    TEST_ASSERT_TRUE( status.bitfield.filter_valid );
+    TEST_ASSERT_FALSE( status.bitfield.clipping );
+    TEST_ASSERT_TRUE( status.bitfield.sync_out_mark );    
+    // not an exhaustive status check, but hits critical flags
 }
 
 void test_parse_mdata2_shake_clipping( void )
 {   
     // Packet when the IMU was being shaked intensely
-    // Gyro, Acc and Mag should be clipping
+    // GyroY, AccZ should be clipping
     // FilterValid flag should be false
 
     // (PacketCounter, 2 bytes, 64389), 
@@ -216,8 +263,85 @@ void test_parse_mdata2_shake_clipping( void )
 
     xsens_mti_parse_buffer( &test_imu, &test_packet, sizeof(test_packet));
     
-    TEST_IGNORE();
+    // PacketCounter
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_PACKET_COUNT, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U16, cb_evt_data_cache[0].type );
+    TEST_ASSERT_EQUAL_INT( 64389, cb_evt_data_cache[0].data.u2);
+  
+    // SampleTimeFine
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TIME_FINE, cb_evt_flag_cache[1] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U32, cb_evt_data_cache[1].type );
+    TEST_ASSERT_EQUAL_INT( 27564254, cb_evt_data_cache[1].data.u4);
 
+    // Quaternion
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_QUATERNION, cb_evt_flag_cache[2] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[2].type );
+    float golden_quat[4] = { 0.66437358, -0.42175028, 0.02720882, 0.61643654 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_quat, cb_evt_data_cache[2].data.f4x4, 4);
+
+    // Acceleration
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ACCELERATION, cb_evt_flag_cache[3] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[3].type );
+    float golden_acc[3] = { -30.28455162, -29.60960007, -71.76024628 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_acc, cb_evt_data_cache[3].data.f4x3, 3);
+
+    // DeltaV
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_DELTA_V, cb_evt_flag_cache[4] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[4].type );
+    float golden_dv[3] = { -0.07186279, -0.07130830, -0.18206376 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_dv, cb_evt_data_cache[4].data.f4x3, 3);
+
+    // FreeAcceleration
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_FREE_ACCELERATION, cb_evt_flag_cache[5] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[5].type );
+    float golden_fr_acc[3] = { 52.39491272, -62.83823395, -25.59408188 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_fr_acc, cb_evt_data_cache[5].data.f4x3, 3);
+
+    // RateOfTurn
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_RATE_OF_TURN, cb_evt_flag_cache[6] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[6].type );
+    float golden_rot[3] = { 4.16570139, -10.33340263, -4.51734877 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_rot, cb_evt_data_cache[6].data.f4x3, 3);
+
+    // DeltaQ
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_DELTA_Q, cb_evt_flag_cache[7] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[7].type );
+    float golden_dq[4] = { 0.99988699, 0.00520693, -0.01291627, -0.00564647 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_dq, cb_evt_data_cache[7].data.f4x4, 4);
+
+    // MagneticField
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_MAGNETIC, cb_evt_flag_cache[8] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[8].type );
+    float golden_mag[3] = { 0.43057421, -0.23942292, 1.37189472 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_mag, cb_evt_data_cache[8].data.f4x3, 3);
+
+    // Pressure
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_PRESSURE, cb_evt_flag_cache[9] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U32, cb_evt_data_cache[9].type );
+    TEST_ASSERT_EQUAL_INT( 100062, cb_evt_data_cache[9].data.u4);
+
+    // StatusWord
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_STATUS_WORD, cb_evt_flag_cache[10] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U32, cb_evt_data_cache[10].type );
+    union XDI_STATUS32_UNION status;
+    status.word = cb_evt_data_cache[10].data.u4;
+    
+    TEST_ASSERT_TRUE( status.bitfield.self_test );
+    TEST_ASSERT_FALSE( status.bitfield.filter_valid );
+    TEST_ASSERT_TRUE( status.bitfield.clipping );
+    TEST_ASSERT_TRUE( status.bitfield.sync_out_mark );  
+
+    TEST_ASSERT_FALSE( status.bitfield.clip_acc_x );
+    TEST_ASSERT_FALSE( status.bitfield.clip_acc_y );
+    TEST_ASSERT_TRUE( status.bitfield.clip_acc_z );
+
+    TEST_ASSERT_FALSE( status.bitfield.clip_gyro_x );
+    TEST_ASSERT_TRUE( status.bitfield.clip_gyro_y );
+    TEST_ASSERT_FALSE( status.bitfield.clip_gyro_z );
+
+    TEST_ASSERT_FALSE( status.bitfield.clip_mag_x );
+    TEST_ASSERT_FALSE( status.bitfield.clip_mag_y );
+    TEST_ASSERT_FALSE( status.bitfield.clip_mag_z );
 }
 
 void test_parse_mdata2_full( void )
@@ -253,5 +377,85 @@ void test_parse_mdata2_full( void )
     
     xsens_mti_parse_buffer( &test_imu, &test_packet, sizeof(test_packet));
 
-    TEST_IGNORE();
+    // PacketCounter
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_PACKET_COUNT, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U16, cb_evt_data_cache[0].type );
+    TEST_ASSERT_EQUAL_INT( 37261, cb_evt_data_cache[0].data.u2);
+  
+    // SampleTimeFine
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TIME_FINE, cb_evt_flag_cache[1] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U32, cb_evt_data_cache[1].type );
+    TEST_ASSERT_EQUAL_INT( 20332454, cb_evt_data_cache[1].data.u4);
+
+    // Quaternion
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_QUATERNION, cb_evt_flag_cache[2] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[2].type );
+    float golden_quat[4] = { 0.71045315, 0.69453555, -0.07777759, -0.08262789 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_quat, cb_evt_data_cache[2].data.f4x4, 4);
+
+    // Acceleration
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ACCELERATION, cb_evt_flag_cache[3] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[3].type );
+    float golden_acc[3] = { -0.05550629, 9.81465530, 0.21842313 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_acc, cb_evt_data_cache[3].data.f4x3, 3);
+
+    // DeltaV
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_DELTA_V, cb_evt_flag_cache[4] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[4].type );
+    float golden_dv[3] = { -0.00013867, 0.02453661, 0.00054736 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_dv, cb_evt_data_cache[4].data.f4x3, 3);
+
+    // FreeAcceleration
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_FREE_ACCELERATION, cb_evt_flag_cache[5] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[5].type );
+    float golden_fr_acc[3] = { -0.01142347, 0.01110744, 0.02007198 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_fr_acc, cb_evt_data_cache[5].data.f4x3, 3);
+
+    // RateOfTurn
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_RATE_OF_TURN, cb_evt_flag_cache[6] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[6].type );
+    float golden_rot[3] = { 0.02131760, -0.00327826, -0.00163019 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_rot, cb_evt_data_cache[6].data.f4x3, 3);
+
+    // DeltaQ
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_DELTA_Q, cb_evt_flag_cache[7] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[7].type );
+    // apparently floating point conversion is differing between MTManager and the decoded version
+    // manually approved with a tolerance test instead of exact match
+    float golden_dq[4] = { 1.00000000, 0.000026647, -0.00000410, -0.000002040 };
+
+    double flt_epsilon = 0.000000119;
+    TEST_ASSERT_FLOAT_WITHIN( flt_epsilon, golden_dq[0], cb_evt_data_cache[7].data.f4x4[0]);
+    TEST_ASSERT_FLOAT_WITHIN( flt_epsilon, golden_dq[1], cb_evt_data_cache[7].data.f4x4[1]);
+    TEST_ASSERT_FLOAT_WITHIN( flt_epsilon, golden_dq[2], cb_evt_data_cache[7].data.f4x4[2]);
+    TEST_ASSERT_FLOAT_WITHIN( flt_epsilon, golden_dq[3], cb_evt_data_cache[7].data.f4x4[3]);
+
+    // MagneticField
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_MAGNETIC, cb_evt_flag_cache[8] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[8].type );
+    float golden_mag[3] = { -0.49215657, 0.70221740, -1.25496686 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_mag, cb_evt_data_cache[8].data.f4x3, 3);
+
+    // Temperature
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TEMPERATURE, cb_evt_flag_cache[9] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT, cb_evt_data_cache[9].type );
+    TEST_ASSERT_EQUAL_FLOAT( 37.62500000, cb_evt_data_cache[9].data.f4);
+
+    // Pressure
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_PRESSURE, cb_evt_flag_cache[10] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U32, cb_evt_data_cache[10].type );
+    TEST_ASSERT_EQUAL_INT( 100065, cb_evt_data_cache[10].data.u4);
+
+
+    // StatusWord
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_STATUS_WORD, cb_evt_flag_cache[11] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U32, cb_evt_data_cache[11].type );
+    union XDI_STATUS32_UNION status;
+    status.word = cb_evt_data_cache[11].data.u4;
+
+    TEST_ASSERT_TRUE( status.bitfield.self_test );
+    TEST_ASSERT_TRUE( status.bitfield.filter_valid );
+    TEST_ASSERT_FALSE( status.bitfield.clipping );
+    TEST_ASSERT_TRUE( status.bitfield.sync_out_mark );    
+
 }

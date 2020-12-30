@@ -33,8 +33,6 @@ void mock_event_function( EventFlag_t event, EventData_t *data )
     printf("Notified of evt: %d\n", event);
 }
 
-
-
 // SETUP, TEARDOWN
 void setUp(void)
 {

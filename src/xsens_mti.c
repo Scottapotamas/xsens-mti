@@ -4,6 +4,8 @@
 #include "xsens_mti_private.h"
 #include "xsens_mdata2.h"
 
+interface_t *most_recent_interface;
+
 message_handler_ref_t inbound_handler_table[] =
 {
     { .id = WAKEUP, .handler_fn = NULL },
@@ -154,6 +156,7 @@ void xsens_mti_handle_payload( interface_t *interface )
         callback_payload_t payload_handler_fn = handler->handler_fn;
         if( payload_handler_fn )
         {
+            most_recent_interface = interface;  // internally cache the interface for cb access
             payload_handler_fn( packet );
         }
     }
@@ -210,7 +213,6 @@ void xsens_internal_handle_device_id( packet_buffer_t *packet )
         // TODO: untested
         uint32_t version = coalesce_32BE_32LE(&packet->payload[4]);
     }
-
 }
 
 void xsens_internal_handle_product_code( packet_buffer_t *packet )
@@ -296,6 +298,6 @@ void xsens_internal_handle_mdata2( packet_buffer_t *packet )
 {
     // MData2 packets contain 1 to n smaller packets 
     // with variable length fields, see xsens_mdata2.c/.h
-    xsens_mdata2_process( packet );
+    xsens_mdata2_process( packet, most_recent_interface->event_cb );
 }
 

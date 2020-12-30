@@ -5,7 +5,7 @@
 // This handler walks through the buffer, identifies the XDA type from two bytes
 // Then applies relevant conversions back into native types/structures as necessary
 // Packets don't have a fixed number of child elements
-void xsens_mdata2_process( packet_buffer_t *packet )
+void xsens_mdata2_process( packet_buffer_t *packet, callback_event_t evt_cb )
 {
     mdata2_parser_state_t md2_state = XDI_PARSE_ID_B1;
     mdata2_packet_t output = { 0 };
@@ -46,7 +46,7 @@ void xsens_mdata2_process( packet_buffer_t *packet )
                 {
                     // Using the isolated field, search for matching XID
                     // and then convert payloads to LE & structured data
-                    xsens_mdata2_decode_field( &output );
+                    xsens_mdata2_decode_field( &output, evt_cb );
 
                     // Cleanup our state before parsing remaining fields
                     md2_state = XDI_PARSE_ID_B1;
@@ -61,8 +61,10 @@ void xsens_mdata2_process( packet_buffer_t *packet )
     // Finished MData2 parsing in payload
 }
 
-void xsens_mdata2_decode_field( mdata2_packet_t *output )
+void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb )
 {
+    EventData_t value = { 0 };
+
     // With the 'isolated' field from the rest of the payload,
     // find the matching XID and apply post-processing strategies
     switch( output->id )
@@ -72,44 +74,51 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output )
         break;
 
         case XDI_PACKET_COUNTER:
-            printf("PacketCounter with %d bytes\n", output->length );
-            uint16_t count = coalesce_16BE_16LE(&output->payload[0]);
-            printf("    Value: %d\n", count);
+            value.type = XSENS_EVT_TYPE_U16;
+            value.data.u2 = coalesce_16BE_16LE(&output->payload[0]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_PACKET_COUNT, &value );
+            }
         break;
 
         case XDI_SAMPLE_TIME_FINE:
-            printf("SampleTimeFine with %d bytes\n", output->length );
-            uint32_t fine = coalesce_32BE_32LE(&output->payload[0]);
-            printf("    Value: %d\n", fine);
+            value.type = XSENS_EVT_TYPE_U32;
+            value.data.u4 = coalesce_32BE_32LE(&output->payload[0]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_TIME_FINE, &value );
+            }
         break;
 
         case XDI_SAMPLE_TIME_COARSE:
-            printf("SampleTimeCoarse with %d bytes\n", output->length );
-            uint32_t coarse = coalesce_32BE_32LE(&output->payload[0]);
-            printf("    Value: %d\n", coarse);
+            value.type = XSENS_EVT_TYPE_U32;
+            value.data.u4 = coalesce_32BE_32LE(&output->payload[0]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_TIME_COARSE, &value );
+            }
         break;
 
         case XDI_TEMPERATURE:
-            printf("Temperature with %d bytes\n", output->length );
-            float temp = coalesce_32BE_F32LE(&output->payload[0]);
-            printf("    Temp: %f\n", temp);
+            value.type = XSENS_EVT_TYPE_FLOAT;
+            value.data.f4 = coalesce_32BE_F32LE(&output->payload[0]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_TEMPERATURE, &value );
+            }
         break;
 
         case XDI_QUATERNION:
-            printf("Quaternion with %d bytes\n", output->length );
-            
-            float quat[4] = { 0.0f };
-
-            quat[0] = coalesce_32BE_F32LE(&output->payload[0]);
-            quat[1] = coalesce_32BE_F32LE(&output->payload[4]);
-            quat[2] = coalesce_32BE_F32LE(&output->payload[8]);
-            quat[3] = coalesce_32BE_F32LE(&output->payload[12]);
-
-            printf("    q0: %f\n", quat[0]);
-            printf("    q1: %f\n", quat[1]);
-            printf("    q2: %f\n", quat[2]);
-            printf("    q3: %f\n", quat[3]);
-
+            value.type = XSENS_EVT_TYPE_FLOAT4;
+            value.data.f4x4[0] = coalesce_32BE_F32LE(&output->payload[0]);
+            value.data.f4x4[1] = coalesce_32BE_F32LE(&output->payload[4]);
+            value.data.f4x4[2] = coalesce_32BE_F32LE(&output->payload[8]);
+            value.data.f4x4[3] = coalesce_32BE_F32LE(&output->payload[12]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_QUATERNION, &value );
+            }
         break;
 
         case XDI_ROTATION_MATRIX:
@@ -121,50 +130,45 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output )
         break;
 
         case XDI_BARO_PRESSURE:
-            printf("Pressure with %d bytes\n", output->length );
-            uint32_t pressure = coalesce_32BE_32LE(&output->payload[0]);
-            printf("    pressure: %d\n", pressure);
+            value.type = XSENS_EVT_TYPE_U32;
+            value.data.u4 = coalesce_32BE_32LE(&output->payload[0]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_PRESSURE, &value );
+            }
         break;
 
         case XDI_DELTA_V:
-            printf("DeltaV with %d bytes\n", output->length );
-            
-            float dv[3] = { 0.0f };
-
-            dv[0] = coalesce_32BE_F32LE(&output->payload[0]);
-            dv[1] = coalesce_32BE_F32LE(&output->payload[4]);
-            dv[2] = coalesce_32BE_F32LE(&output->payload[8]);
-
-            printf("    dv.x: %f\n", dv[0]);
-            printf("    dv.y: %f\n", dv[1]);
-            printf("    dv.z: %f\n", dv[2]);
+            value.type = XSENS_EVT_TYPE_FLOAT3;
+            value.data.f4x3[0] = coalesce_32BE_F32LE(&output->payload[0]);
+            value.data.f4x3[1] = coalesce_32BE_F32LE(&output->payload[4]);
+            value.data.f4x3[2] = coalesce_32BE_F32LE(&output->payload[8]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_DELTA_V, &value );
+            }
         break;
 
         case XDI_ACCELERATION:
-            printf("Acceleration with %d bytes\n", output->length );
-            
-            float acc[3] = { 0.0f };
-
-            acc[0] = coalesce_32BE_F32LE(&output->payload[0]);
-            acc[1] = coalesce_32BE_F32LE(&output->payload[4]);
-            acc[2] = coalesce_32BE_F32LE(&output->payload[8]);
-
-            printf("    acc.x: %f\n", acc[0]);
-            printf("    acc.y: %f\n", acc[1]);
-            printf("    acc.z: %f\n", acc[2]);
+            value.type = XSENS_EVT_TYPE_FLOAT3;
+            value.data.f4x3[0] = coalesce_32BE_F32LE(&output->payload[0]);
+            value.data.f4x3[1] = coalesce_32BE_F32LE(&output->payload[4]);
+            value.data.f4x3[2] = coalesce_32BE_F32LE(&output->payload[8]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_ACCELERATION, &value );
+            }
         break;
 
         case XDI_FREE_ACCELERATION:
-            printf("FreeAcceleration with %d bytes\n", output->length );
-            float fracc[3] = { 0.0f };
-
-            fracc[0] = coalesce_32BE_F32LE(&output->payload[0]);
-            fracc[1] = coalesce_32BE_F32LE(&output->payload[4]);
-            fracc[2] = coalesce_32BE_F32LE(&output->payload[8]);
-
-            printf("    frAcc.x: %f\n", fracc[0]);
-            printf("    frAcc.y: %f\n", fracc[1]);
-            printf("    frAcc.z: %f\n", fracc[2]);
+            value.type = XSENS_EVT_TYPE_FLOAT3;
+            value.data.f4x3[0] = coalesce_32BE_F32LE(&output->payload[0]);
+            value.data.f4x3[1] = coalesce_32BE_F32LE(&output->payload[4]);
+            value.data.f4x3[2] = coalesce_32BE_F32LE(&output->payload[8]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_FREE_ACCELERATION, &value );
+            }
         break;
 
         case XDI_ACCELERATION_HIGH_RATE:
@@ -196,31 +200,26 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output )
         break;
 
         case XDI_RATE_OF_TURN:
-            printf("RateOfTurn with %d bytes\n", output->length );
-            float rot[3] = { 0.0f };
-
-            rot[0] = coalesce_32BE_F32LE(&output->payload[0]);
-            rot[1] = coalesce_32BE_F32LE(&output->payload[4]);
-            rot[2] = coalesce_32BE_F32LE(&output->payload[8]);
-
-            printf("    rot.x: %f\n", rot[0]);
-            printf("    rot.y: %f\n", rot[1]);
-            printf("    rot.z: %f\n", rot[2]);
+            value.type = XSENS_EVT_TYPE_FLOAT3;
+            value.data.f4x3[0] = coalesce_32BE_F32LE(&output->payload[0]);
+            value.data.f4x3[1] = coalesce_32BE_F32LE(&output->payload[4]);
+            value.data.f4x3[2] = coalesce_32BE_F32LE(&output->payload[8]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_RATE_OF_TURN, &value );
+            }
         break;
 
         case XDI_DELTA_Q:
-            printf("DeltaQ with %d bytes\n", output->length );
-            float dq[4] = { 0.0f };
-
-            dq[0] = coalesce_32BE_F32LE(&output->payload[0]);
-            dq[1] = coalesce_32BE_F32LE(&output->payload[4]);
-            dq[2] = coalesce_32BE_F32LE(&output->payload[8]);
-            dq[3] = coalesce_32BE_F32LE(&output->payload[12]);
-
-            printf("    dq0: %f\n", dq[0]);
-            printf("    dq1: %f\n", dq[1]);
-            printf("    dq2: %f\n", dq[2]);
-            printf("    dq3: %f\n", dq[3]);
+            value.type = XSENS_EVT_TYPE_FLOAT4;
+            value.data.f4x4[0] = coalesce_32BE_F32LE(&output->payload[0]);
+            value.data.f4x4[1] = coalesce_32BE_F32LE(&output->payload[4]);
+            value.data.f4x4[2] = coalesce_32BE_F32LE(&output->payload[8]);
+            value.data.f4x4[3] = coalesce_32BE_F32LE(&output->payload[12]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_DELTA_Q, &value );
+            }
         break;
 
         case XDI_RATE_OF_TURN_HIGH_RATE:
@@ -236,16 +235,14 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output )
         break;
 
         case XDI_MAGNETIC_FIELD:
-            printf("MagneticField with %d bytes\n", output->length );
-            float mag[3] = { 0.0f };
-
-            mag[0] = coalesce_32BE_F32LE(&output->payload[0]);
-            mag[1] = coalesce_32BE_F32LE(&output->payload[4]);
-            mag[2] = coalesce_32BE_F32LE(&output->payload[8]);
-
-            printf("    mag.x: %f\n", mag[0]);
-            printf("    mag.y: %f\n", mag[1]);
-            printf("    mag.z: %f\n", mag[2]);
+            value.type = XSENS_EVT_TYPE_FLOAT3;
+            value.data.f4x3[0] = coalesce_32BE_F32LE(&output->payload[0]);
+            value.data.f4x3[1] = coalesce_32BE_F32LE(&output->payload[4]);
+            value.data.f4x3[2] = coalesce_32BE_F32LE(&output->payload[8]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_MAGNETIC, &value );
+            }
         break;
 
         case XDI_VELOCITY_XYZ:
@@ -257,14 +254,18 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output )
         break;
 
         case XDI_STATUS_WORD:
-            printf("StatusWord with %d bytes\n", output->length );
-            union XDI_STATUS32_UNION status;
-            status.word = coalesce_32BE_32LE(&output->payload[0]);
+            // Casting to a bitfield is end-users responsibility.
 
-            printf("    filterOK: %d\n", status.bitfield.filter_valid);
-            printf("    clipping: %d\n", status.bitfield.clipping);
-            printf("    selftest: %d\n", status.bitfield.self_test);
+            // union XDI_STATUS32_UNION status;
+            // status.word = coalesce_32BE_32LE(&output->payload[0]);
+            // printf("filterOK: %d\n", status.bitfield.filter_valid);
 
+            value.type = XSENS_EVT_TYPE_U32;
+            value.data.u4 = coalesce_32BE_32LE(&output->payload[0]);
+            if( evt_cb )
+            {
+                evt_cb( XSENS_EVT_STATUS_WORD, &value );
+            }
         break;
 
         case XDI_DEVICE_ID:

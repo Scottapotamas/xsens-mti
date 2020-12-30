@@ -18,6 +18,7 @@ typedef struct
     uint8_t payload[2048];
 } packet_buffer_t;
 
+
 // Event flags sent to application-level code
 typedef enum  {
     XSENS_EVT_PACKET_COUNT = 0,
@@ -36,10 +37,11 @@ typedef enum  {
     XSENS_EVT_PRESSURE,
     XSENS_EVT_TEMPERATURE,
 
-    XSENS_EVT_STATUS,
+    XSENS_EVT_STATUS_WORD,
 } EventFlag_t;
 
 typedef enum {
+    XSENS_EVT_TYPE_NONE = 0,
     XSENS_EVT_TYPE_U16,
     XSENS_EVT_TYPE_U32,
     XSENS_EVT_TYPE_FLOAT,
@@ -57,6 +59,14 @@ typedef struct {
         float    f4x4[4];
     } data;  
 } EventData_t;
+
+// Userspace callback to notify application layer code of a relevant event
+// These events are accompanied by output-ready decoded data
+typedef void (*callback_event_t)(EventFlag_t, EventData_t*);
+
+// Callback to userspace serial write function
+// Uses args for a uint8_t buffer of bytes, with a uint16_t size value
+typedef void (*callback_data_out_t)(uint8_t*, uint16_t);
 
 // Specific Values and Structures for xsens handling
 
