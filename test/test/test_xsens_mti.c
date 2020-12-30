@@ -10,15 +10,33 @@
 // PRIVATE TYPES
  
 // PRIVATE DATA
+interface_t test_imu = { 0 };
 
 
 // PRIVATE FUNCTIONS
+
+void mock_output_function( uint8_t *buffer, uint16_t size );
+void mock_event_function( EventFlags_t event );
+
+
+void mock_output_function( uint8_t *buffer, uint16_t size )
+{
+    printf("Output of %d bytes\n", size);
+}
+
+void mock_event_function( EventFlags_t event )
+{
+    printf("Notified of evt: %d\n", event);
+}
+
 
 
 // SETUP, TEARDOWN
 void setUp(void)
 {
-
+    test_imu.output_cb = &mock_output_function;
+    test_imu.event_cb = &mock_event_function;
+    init( &test_imu );
 }
  
 void tearDown(void)
@@ -55,24 +73,24 @@ void test_parse_basic( void )
 
     for( uint16_t i = 0; i < sizeof(test_packet); i++ )
     {
-        parse(test_packet[i]);
+        parse( &test_imu, test_packet[i]);
     }
 
     TEST_ASSERT_TRUE_MESSAGE(0, "Missing test");
 }
 
-// void test_parse_buffer( void )
-// {   
-//     // Check that the buffer helper function behaves the same
-//     // as the basic test above
-//     uint8_t test_packet[] = {   0xFA, 
-//                                 0xFF, 
-//                                 0x31, 
-//                                 0x00, 
-//                                 0xD0 };
+void test_parse_buffer( void )
+{   
+    // Check that the buffer helper function behaves the same
+    // as the basic test above
+    uint8_t test_packet[] = {   0xFA, 
+                                0xFF, 
+                                0x31, 
+                                0x00, 
+                                0xD0 };
 
-//     parse_buffer(&test_packet, sizeof(test_packet));
+    parse_buffer( &test_imu, &test_packet, sizeof(test_packet));
     
-//     TEST_ASSERT_TRUE_MESSAGE(0, "Missing test");
+    TEST_ASSERT_TRUE_MESSAGE(0, "Missing test");
 
-// }
+}

@@ -1,3 +1,9 @@
+#ifndef XENS_MTI_H
+#define XENS_MTI_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "stdint.h"
 #include "stdbool.h"
@@ -10,20 +16,6 @@ typedef void (*callback_event_t)(EventFlags_t);
 
 typedef void (*callback_data_out_t)(uint8_t*, uint16_t);
 
-
-void init();
-
-void parse_buffer( uint8_t *buffer, uint16_t size );
-void parse( uint8_t byte );
-void reset_parser( void );
-
-
-#define PREAMBLE_BYTE 0xFA
-#define ADDRESS_BYTE 0xFF
-
-#define LENGTH_EXTENDED_MODE 0xFF
-#define LENGTH_NONE 0x00
-
 typedef enum {
     PARSER_PREAMBLE = 0,
     PARSER_ADDRESS,
@@ -34,6 +26,40 @@ typedef enum {
     PARSER_PAYLOAD,
     PARSER_CRC,
 } parser_state_t;
+
+typedef struct 
+{
+    parser_state_t state;
+
+    uint8_t message_id;
+    uint16_t length;
+    uint8_t payload[2048];
+    uint16_t payload_pos;
+    uint8_t crc;
+} packet_buffer_t;
+
+typedef struct
+{
+    packet_buffer_t state;
+    callback_event_t event_cb;
+    callback_data_out_t output_cb;
+} interface_t;
+
+
+
+void init( interface_t *interface );
+
+void parse_buffer( interface_t *interface, uint8_t *buffer, uint16_t size );
+void parse( interface_t *interface, uint8_t byte );
+void reset_parser( interface_t *interface );
+
+
+
+#define PREAMBLE_BYTE 0xFA
+#define ADDRESS_BYTE 0xFF
+
+#define LENGTH_EXTENDED_MODE 0xFF
+#define LENGTH_NONE 0x00
 
 enum  {
     WAKEUP = 0x3E,
@@ -127,3 +153,9 @@ enum  {
     MODE_CONFIG,
     MODE_MEASUREMENT,
 } DEVICE_MODE;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //end XENS_MTI_H
