@@ -11,13 +11,6 @@ extern "C" {
 
 
 
-typedef enum  {
-    EVT_BLAH = 0,
-} EventFlags_t;
-
-
-
-
 // Packet state machine values
 typedef enum {
     PARSER_PREAMBLE = 0,
@@ -31,7 +24,8 @@ typedef enum {
 } parser_state_t;
 
 // Userspace callback to notify application layer code of a relevant event
-typedef void (*callback_event_t)(EventFlags_t);
+// These events are accompanied by output-ready decoded data
+typedef void (*callback_event_t)(EventFlag_t, EventData_t*);
 
 // Callback to userspace serial write function
 // Uses args for a uint8_t buffer of bytes, with a uint16_t size value

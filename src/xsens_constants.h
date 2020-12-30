@@ -8,11 +8,7 @@ extern "C" {
 #include "stdint.h"
 #include "stdbool.h"
 
-#define PREAMBLE_BYTE 0xFA
-#define ADDRESS_BYTE 0xFF
-
-#define LENGTH_EXTENDED_MODE 0xFF
-#define LENGTH_NONE 0x00
+// Library Related Abstractions
 
 // The basic concept of a valid decoded packet
 typedef struct 
@@ -21,6 +17,54 @@ typedef struct
     uint16_t length;
     uint8_t payload[2048];
 } packet_buffer_t;
+
+// Event flags sent to application-level code
+typedef enum  {
+    XSENS_EVT_PACKET_COUNT = 0,
+    XSENS_EVT_TIME_FINE,
+    XSENS_EVT_TIME_COARSE,
+
+    XSENS_EVT_QUATERNION,
+    XSENS_EVT_DELTA_Q,
+
+    XSENS_EVT_ACCELERATION,
+    XSENS_EVT_FREE_ACCELERATION,
+    XSENS_EVT_DELTA_V,
+
+    XSENS_EVT_RATE_OF_TURN,
+    XSENS_EVT_MAGNETIC,
+    XSENS_EVT_PRESSURE,
+    XSENS_EVT_TEMPERATURE,
+
+    XSENS_EVT_STATUS,
+} EventFlag_t;
+
+typedef enum {
+    XSENS_EVT_TYPE_U16,
+    XSENS_EVT_TYPE_U32,
+    XSENS_EVT_TYPE_FLOAT,
+    XSENS_EVT_TYPE_FLOAT3,
+    XSENS_EVT_TYPE_FLOAT4,
+} EventDataType_t;
+
+typedef struct {
+    EventDataType_t type;
+    union {
+        uint16_t u2;      
+        uint32_t u4;
+        float    f4;
+        float    f4x3[3];
+        float    f4x4[4];
+    } data;  
+} EventData_t;
+
+// Specific Values and Structures for xsens handling
+
+#define PREAMBLE_BYTE 0xFA
+#define ADDRESS_BYTE 0xFF
+
+#define LENGTH_EXTENDED_MODE 0xFF
+#define LENGTH_NONE 0x00
 
 enum {
     ERROR_PERIOD_INVALID = 0x03,

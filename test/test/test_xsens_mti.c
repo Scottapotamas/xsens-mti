@@ -20,7 +20,7 @@ interface_t test_imu = { 0 };
 // PRIVATE FUNCTIONS
 
 void mock_output_function( uint8_t *buffer, uint16_t size );
-void mock_event_function( EventFlags_t event );
+void mock_event_function( EventFlag_t event, EventData_t *data );
 
 
 void mock_output_function( uint8_t *buffer, uint16_t size )
@@ -28,7 +28,7 @@ void mock_output_function( uint8_t *buffer, uint16_t size )
     printf("Output of %d bytes\n", size);
 }
 
-void mock_event_function( EventFlags_t event )
+void mock_event_function( EventFlag_t event, EventData_t *data )
 {
     printf("Notified of evt: %d\n", event);
 }
@@ -41,7 +41,6 @@ void setUp(void)
     memset( &test_imu, 0, sizeof(test_imu) );
     test_imu.output_cb = &mock_output_function;
     test_imu.event_cb = &mock_event_function;
-    init( &test_imu );
 }
  
 void tearDown(void)
@@ -50,16 +49,6 @@ void tearDown(void)
 }
 
 // TESTS
-void test_init_valid( void )
-{   
-    TEST_IGNORE();
-}
-
-void test_init_invalid( void )
-{   
-    TEST_IGNORE();
-}
-
 void test_parse_basic( void )
 {   
     // Simulate the IMU sending a GoToConfigAck packet
@@ -77,7 +66,7 @@ void test_parse_basic( void )
 
     for( uint16_t i = 0; i < sizeof(test_packet); i++ )
     {
-        parse( &test_imu, test_packet[i]);
+        xsens_mti_parse( &test_imu, test_packet[i]);
     }
 
     TEST_IGNORE();
@@ -93,7 +82,7 @@ void test_parse_buffer( void )
                                 0x00, 
                                 0xD0 };
 
-    parse_buffer( &test_imu, &test_packet, sizeof(test_packet));
+    xsens_mti_parse_buffer( &test_imu, &test_packet, sizeof(test_packet));
     
     TEST_IGNORE();
 
