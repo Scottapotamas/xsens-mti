@@ -206,34 +206,96 @@ message_handler_ref_t * find_inbound_handler_table_entry( uint8_t find_id )
 void handle_device_id( packet_buffer_t *packet )
 {
     printf("DeviceID Handler\n");
+    if( packet->length == 4)
+    {
+        // MTi 1, 10, 100
+        uint32_t version = coalesce_32BE_32LE(&packet->payload[0]);
+        printf("  DeviceID: %d\n", version);
+    }
+    else if( packet->length == 8)
+    {
+        // MTi600
+        // TODO: untested
+        uint32_t version = coalesce_32BE_32LE(&packet->payload[4]);
+    }
+
 }
 
 void handle_product_code( packet_buffer_t *packet )
 {
     printf("ProductCode Handler\n");
+    // ASCII formatted code max 20 bytes
 
 }
 
 void handle_hardware_version( packet_buffer_t *packet )
 {
     printf("HardwareVersion Handler\n");
+    uint8_t hw_version[2];
 
+    uint16_t *hw_ptr = (uint16_t *) &hw_version;
+    hw_ptr = coalesce_16BE_16LE(&packet->payload[0]);
+
+    printf("  %d, %d\n", hw_version[0], hw_version[1]);
 }
 
 void handle_firmware_version( packet_buffer_t *packet )
 {
     printf("FirmwareVersion Handler\n");
+    uint8_t major = packet->payload[0];
+    uint8_t minor = packet->payload[1];
+    uint8_t revision = packet->payload[2];
+    uint32_t build = coalesce_32BE_32LE(&packet->payload[3]);
+    uint32_t scm = coalesce_32BE_32LE(&packet->payload[7]);
 
+    printf("    Major: %d\n", major);
+    printf("    Minor: %d\n", minor);
+    printf("    Rev:   %d\n", revision);
+    printf("    Build: %d\n", build);
+    printf("    SCM:   %d\n", scm);
 }
 
 void handle_selftest_results( packet_buffer_t *packet )
 {
     printf("SelfTest Handler\n");
+
+    
 }
 
 void handle_error( packet_buffer_t *packet )
 {
-    printf("Error Handler\n");
+    uint8_t error_code = packet->payload[0];
+
+    switch( error_code )
+    {
+        case ERROR_PERIOD_INVALID:
+            printf("ERROR_PERIOD_INVALID\n");
+        break;
+        
+        case ERROR_MESSAGE_INVALID:
+            printf("ERROR_MESSAGE_INVALID\n");
+        break;
+        
+        case ERROR_TIMER_OVERFLOW:
+            printf("ERROR_TIMER_OVERFLOW\n");
+        break;
+        
+        case ERROR_BAUDRATE:
+            printf("ERROR_BAUDRATE\n");
+        break;
+        
+        case ERROR_PARAMETER_INVALID:
+            printf("ERROR_PARAMETER_INVALID\n");
+        break;
+        
+        case ERROR_DEVICE:
+            printf("ERROR_DEVICE\n");
+        break;
+
+        default:
+            printf("ERROR: UNKNOWN ERROR CODE\n");
+        break;
+    }
 
 }
 

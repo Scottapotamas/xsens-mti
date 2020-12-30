@@ -22,6 +22,15 @@ typedef struct
     uint8_t payload[2048];
 } packet_buffer_t;
 
+enum {
+    ERROR_PERIOD_INVALID = 0x03,
+    ERROR_MESSAGE_INVALID = 0x04,
+    ERROR_TIMER_OVERFLOW = 0x30,
+    ERROR_BAUDRATE = 0x20,
+    ERROR_PARAMETER_INVALID = 0x21,
+    ERROR_DEVICE = 0x28,
+} ERRORCODE;
+
 // Message Identifiers for MTi->HOST
 enum {
     WAKEUP = 0x3E,
