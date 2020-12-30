@@ -54,7 +54,7 @@ void xsens_mti_reset_parser( interface_t *interface );
 // Add or override the internal packet handler function with a userspace function
 bool xsens_mti_override_id_handler( uint8_t id, callback_payload_t *user_fn );
 
-
+void xsens_mti_send( void );
 
 
 #ifdef __cplusplus

@@ -193,6 +193,10 @@ message_handler_ref_t * xsens_mti_find_inbound_handler_entry( uint8_t find_id )
     return (message_handler_ref_t*)NULL;
 }
 
+void xsens_mti_send( void )
+{
+
+}
 
 
 
