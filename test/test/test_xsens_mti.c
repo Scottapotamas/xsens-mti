@@ -34,6 +34,7 @@ void mock_event_function( EventFlags_t event )
 // SETUP, TEARDOWN
 void setUp(void)
 {
+    memset( &test_imu, 0, sizeof(test_imu) );
     test_imu.output_cb = &mock_output_function;
     test_imu.event_cb = &mock_event_function;
     init( &test_imu );
@@ -53,7 +54,6 @@ void test_init_valid( void )
 void test_init_invalid( void )
 {   
     TEST_ASSERT_TRUE_MESSAGE(0, "Missing test");
-
 }
 
 void test_parse_basic( void )

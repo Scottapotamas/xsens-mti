@@ -29,18 +29,18 @@ typedef enum {
 
 typedef struct 
 {
-    parser_state_t state;
-
     uint8_t message_id;
     uint16_t length;
     uint8_t payload[2048];
-    uint16_t payload_pos;
-    uint8_t crc;
 } packet_buffer_t;
 
 typedef struct
 {
-    packet_buffer_t state;
+    parser_state_t state;
+    packet_buffer_t packet;
+    uint16_t payload_pos;
+    uint8_t crc;
+
     callback_event_t event_cb;
     callback_data_out_t output_cb;
 } interface_t;
