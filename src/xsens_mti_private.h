@@ -20,8 +20,6 @@ void handle_mdata2( packet_buffer_t *packet );
 
 
 
-
-
 // Responsible for calling downstream handler and post-processing functions
 // after a valid packet is parsed
 void handle_payload( interface_t *interface );
