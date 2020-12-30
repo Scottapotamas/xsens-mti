@@ -48,12 +48,12 @@ void tearDown(void)
 // TESTS
 void test_init_valid( void )
 {   
-    TEST_ASSERT_TRUE_MESSAGE(0, "Missing test");
+    TEST_IGNORE();
 }
 
 void test_init_invalid( void )
 {   
-    TEST_ASSERT_TRUE_MESSAGE(0, "Missing test");
+    TEST_IGNORE();
 }
 
 void test_parse_basic( void )
@@ -76,7 +76,7 @@ void test_parse_basic( void )
         parse( &test_imu, test_packet[i]);
     }
 
-    TEST_ASSERT_TRUE_MESSAGE(0, "Missing test");
+    TEST_IGNORE();
 }
 
 void test_parse_buffer( void )
@@ -91,6 +91,28 @@ void test_parse_buffer( void )
 
     parse_buffer( &test_imu, &test_packet, sizeof(test_packet));
     
-    TEST_ASSERT_TRUE_MESSAGE(0, "Missing test");
+    TEST_IGNORE();
 
 }
+
+/*
+// Quick function to calculate the correct CRC for a message
+// As some golden sample payloads didn't have one recorded...
+void test_calculate_crc( void )
+{
+    uint8_t test_packet[] = {   0xFA, 
+                                0xFF, 
+                                0x31, 
+                                0x00,
+                             };
+
+    uint8_t checksum = 0;
+
+    for (int i = 1; i < sizeof(test_packet); i++)
+    {
+	    checksum -= test_packet[i];
+    }
+
+    printf("Output CRC should be 0x%X\n", (checksum & 0xff));
+}
+*/
