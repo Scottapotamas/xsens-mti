@@ -12,7 +12,7 @@ With the exception of one Arduino library (which didn't work for me), and exampl
 
 At time of writing, there aren't _any pure C_ libraries/examples for communicating over UART/RS232.
 
-The packet layout and packet-in-packet (MData2) format variations mean writing a general handler and decoder is a bit terse, and xsens example code shifts this responsibility to the developer. This library _aims_ to provide a more sane approach, with application code not requiring
+The packet layout and packet-in-packet (MData2) format variations mean writing a general handler and decoder is a bit terse, and xsens example code shifts this responsibility to the developer. This library _aims_ to provide a more sane approach, with application code not requiring any buffer handling or IMU specific logic.
 
 ## Does it work?
 
@@ -28,9 +28,10 @@ I use this library in production with several MTi-300 units connected to a custo
 
 Most of the xsens IMU hardware is pretty expensive. So it's unlikely many people will read this...
 
-Without other IMU models, I'm unable to provide guarantees of functionality or correctness (no support for 600/700 features for example).
-
-While the library tries to follow all the message identifiers and fields outlined by xsens, many sections aren't covered (but an escape hatch is provided).
+- No specific effort has been put into ensuring portability of this library to big-endian processors.
+- Without other IMU hardware, I'm unable to provide functional/correctness guarantees.
+- No inbuilt support for MTi-7/600/700 features such as GNSS or position.
+- While the library tries to follow all message identifiers and fields outlined by xsens, some sections aren't covered (but an escape hatch is provided).
 
 # Usage
 
@@ -42,9 +43,9 @@ Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby/rake)
 
 I don't provide Ceedling's vendor files inside this repo, so first runs need to 're-initalise' the test structure.
 
-1. Use the provided `test/setup_tests.sh` script to begin with.
+1. Use the provided `setup_tests.sh` script to begin.
 
-   - You might need to add execution permission first. From `/test`, run `chmod +x setup_tests.sh`.
+   - You might need to add execution permission first. Run `chmod +x setup_tests.sh`.
    - Depending on your Ruby/Gem system configuration things may not work first try. Failing that, manually install `ceedling` with `gem install ceedling`.
 
 2. Run the `setup_tests.sh` script. If you don't have ceedling installed, it will prompt to install the ruby gem.
@@ -55,7 +56,7 @@ I don't provide Ceedling's vendor files inside this repo, so first runs need to 
 
 - Run `ceedling gcov:all` to generate the coverage reports.
 - Use `ceedling utils:gcov` to generate a pretty HTML report.
-  - HTML output is located in the `/test/build/artifacts/gcov` folder.
+  - HTML output is located in the `/build/artifacts/gcov` folder.
 
 You need `gcovr` installed, and on some Linux distros, may also need a `gcovr` runtime dependancy `jinja2`.
 
@@ -68,4 +69,4 @@ I test with a `gcc`+`gcov` environment running on `$LINUX_DISTRO`.
 - xsens have documented their protocol and the behaviour in the [MT Low Level Documentation PDF](https://www.xsens.com/hubfs/Downloads/Manuals/MT_Low-Level_Documentation.pdf), and there are only a few typos.
 - xsens MTManager software provides a packet viewer was used to capture and decode several 'golden' packets used in unit tests.
 
-This library is [MIT licensed](LICENSE).
+This library is [Apache2 licenced](LICENSE).
