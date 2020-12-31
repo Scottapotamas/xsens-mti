@@ -20,4 +20,4 @@ float coalesce_32BE_F32LE( uint8_t *source );
 }
 #endif
 
-#endif //end XSENS_UTILITY_H
+#endif    //end XSENS_UTILITY_H

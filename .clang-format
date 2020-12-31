@@ -1,0 +1,39 @@
+---
+BasedOnStyle: WebKit
+AlignAfterOpenBracket: Align
+AlignConsecutiveMacros: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignEscapedNewlines: Left
+AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakBeforeMultilineStrings: false
+IndentCaseLabels: true
+SpacesInCStyleCastParentheses: false
+SpacesBeforeTrailingComments: 4
+SpacesInParentheses: true
+SpaceBeforeParens: Never
+SpaceBeforeAssignmentOperators: true
+SpaceAfterLogicalNot: false
+BreakBeforeTernaryOperators: true
+DerivePointerAlignment: false
+PointerAlignment: Right
+AlignOperands: true
+Language: Cpp
+SortIncludes: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterEnum: true
+  AfterControlStatement: true
+  AfterFunction: true
+  AfterUnion: true
+  AfterStruct: true
+  SplitEmptyFunction: false
+  BeforeCatch: true
+  BeforeElse: true
+
+...

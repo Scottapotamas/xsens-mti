@@ -7,9 +7,9 @@ extern "C" {
 
 #include "xsens_constants.h"
 
-
 // Packet state machine values
-typedef enum {
+typedef enum
+{
     PARSER_PREAMBLE = 0,
     PARSER_ADDRESS,
     PARSER_MESSAGE_ID,
@@ -23,28 +23,25 @@ typedef enum {
 // Userspace storage for library state and buffers
 typedef struct
 {
-    parser_state_t state;
+    parser_state_t  state;
     packet_buffer_t packet;
-    uint16_t payload_pos;
-    uint8_t crc;
+    uint16_t        payload_pos;
+    uint8_t         crc;
 
-    callback_event_t event_cb;
+    callback_event_t    event_cb;
     callback_data_out_t output_cb;
 } interface_t;
 
-
 // Callback to internal (or userspace) handler function
 // Function is passed a successfully receieved packet for processing
-typedef void (*callback_payload_t)(packet_buffer_t*);
+typedef void ( *callback_payload_t )( packet_buffer_t * );
 
 // Entry for a list of function pointers to handle each MID correctly
 typedef struct
 {
-    uint8_t id;
+    uint8_t             id;
     callback_payload_t *handler_fn;
 } message_handler_ref_t;
-
-
 
 // Parse inbound bytes received from the MTi device
 void xsens_mti_parse_buffer( interface_t *interface, uint8_t *buffer, uint16_t size );
@@ -56,9 +53,8 @@ bool xsens_mti_override_id_handler( uint8_t id, callback_payload_t *user_fn );
 
 void xsens_mti_send( void );
 
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif //end XSENS_MTI_H
+#endif    //end XSENS_MTI_H
