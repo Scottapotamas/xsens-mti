@@ -3,6 +3,7 @@
 #include "xsens_mti.h"
 #include "xsens_mti_private.h"
 #include "xsens_mdata2.h"
+#include "xsens_utility.h"
 
 interface_t *most_recent_interface;
 

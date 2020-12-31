@@ -1,5 +1,5 @@
-#ifndef XENS_UTILITY_H
-#define XENS_UTILITY_H
+#ifndef XSENS_UTILITY_H
+#define XSENS_UTILITY_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,4 +20,4 @@ float coalesce_32BE_F32LE( uint8_t *source );
 }
 #endif
 
-#endif //end XENS_UTILITY_H
+#endif //end XSENS_UTILITY_H

@@ -1,5 +1,5 @@
-#ifndef XENS_CONSTANTS_H
-#define XENS_CONSTANTS_H
+#ifndef XSENS_CONSTANTS_H
+#define XSENS_CONSTANTS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -255,4 +255,4 @@ union XDI_STATUS32_UNION {
 #endif
 
 #endif 
-//end XENS_CONSTANTS_H
+//end XSENS_CONSTANTS_H

@@ -1,5 +1,5 @@
-#ifndef XENS_MTI_PRIVATE_H
-#define XENS_MTI_PRIVATE_H
+#ifndef XSENS_MTI_PRIVATE_H
+#define XSENS_MTI_PRIVATE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,4 +33,4 @@ message_handler_ref_t * xsens_mti_find_inbound_handler_entry( uint8_t find_id );
 }
 #endif
 
-#endif //end XENS_MTI_PRIVATE_H
+#endif //end XSENS_MTI_PRIVATE_H

@@ -1,5 +1,5 @@
-#ifndef XENS_MTI_H
-#define XENS_MTI_H
+#ifndef XSENS_MTI_H
+#define XSENS_MTI_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,4 +61,4 @@ void xsens_mti_send( void );
 }
 #endif
 
-#endif //end XENS_MTI_H
+#endif //end XSENS_MTI_H

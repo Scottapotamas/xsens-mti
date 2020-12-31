@@ -1,5 +1,5 @@
-#ifndef XENS_MDATA2_H
-#define XENS_MDATA2_H
+#ifndef XSENS_MDATA2_H
+#define XSENS_MDATA2_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,4 +32,4 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
 }
 #endif
 
-#endif //end XENS_MDATA2_H
+#endif //end XSENS_MDATA2_H
