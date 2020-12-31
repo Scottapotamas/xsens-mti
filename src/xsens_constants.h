@@ -76,17 +76,17 @@ typedef void (*callback_data_out_t)(uint8_t*, uint16_t);
 #define LENGTH_EXTENDED_MODE 0xFF
 #define LENGTH_NONE 0x00
 
-enum {
+enum ERRORCODE {
     ERROR_PERIOD_INVALID = 0x03,
     ERROR_MESSAGE_INVALID = 0x04,
     ERROR_TIMER_OVERFLOW = 0x30,
     ERROR_BAUDRATE = 0x20,
     ERROR_PARAMETER_INVALID = 0x21,
     ERROR_DEVICE = 0x28,
-} ERRORCODE;
+} ;
 
 // Message Identifiers for MTi->HOST
-enum {
+enum MESSAGE_ID_INBOUND {
     WAKEUP = 0x3E,
     GOTOCONFIGACK = 0x31,
     GOTOMEASUREMENTACK = 0x11,
@@ -110,7 +110,7 @@ enum {
     ICCCOMMANDACK = 0x75, 
     SETINITIALHEADINGACK = 0xD7, 
     FORWARDGNSSDATAACK = 0xE3, 
-} MESSAGE_ID_INBOUND;
+};
 
 // Message Identifiers for Host->MTi
 enum {
@@ -163,16 +163,16 @@ enum {
     ICCCOMMAND = 0x74,
     SETINITIALHEADING = 0xD6,
     FORWARDGNSSDATA = 0xE2,
-} MESSAGE_ID_OUTBOUND;
+};
 
-enum  {
+enum DEVICE_MODE {
     MODE_WAKEUP = 0,
     MODE_CONFIG,
     MODE_MEASUREMENT,
-} DEVICE_MODE;
+};
 
 // MData2 Field Identifiers
-enum  {
+enum XDA_TYPE_IDENTIFIER {
     XDI_UTC_TIME = 0x1010,
     XDI_PACKET_COUNTER = 0x1020,
     XDI_SAMPLE_TIME_FINE = 0x1060,
@@ -214,7 +214,7 @@ enum  {
     XDI_DEVICE_ID = 0xE080,
     XDI_LOCATION_ID = 0xE090,
 
-} XDA_TYPE_IDENTIFIER;
+};
 
 // 32-bit status structure
 typedef struct {
