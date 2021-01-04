@@ -147,7 +147,7 @@ void imu_icc_command_ack( packet_buffer_t *packet )
 During your setup, provide the callback pointer and `MID` to filter for. Use the enum value in `xsens_constants.h` or the raw value:
 
 ```
-bool ok = xsens_mti_override_id_handler( 0x75, &user_handle_icc_command_ack );
+bool ok = xsens_mti_override_id_handler( 0x75, &imu_icc_command_ack );
 bool ok = xsens_mti_override_id_handler( MT_ICCCOMMANDACK, &imu_icc_command_ack );
 ```
 
@@ -187,10 +187,6 @@ I don't provide Ceedling's vendor files inside this repo, so first runs need to 
   - HTML output is located in the `/build/artifacts/gcov` folder.
 
 You need `gcovr` installed, and on some Linux distros, may also need a `gcovr` runtime dependancy `jinja2`.
-
-When attempting to run coverage analysis on OSX, the output results are slightly different due to subtle differences with the `clang` based toolchain.
-
-I test with a `gcc`+`gcov` environment running on `$LINUX_DISTRO`.
 
 # References & Acknowledgement
 

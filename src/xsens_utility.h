@@ -16,6 +16,9 @@ uint32_t coalesce_32BE_32LE( uint8_t *source );
 // Read 4 big-endian bytes and return a little-endian float
 float coalesce_32BE_F32LE( uint8_t *source );
 
+// Convert quaternion to roll/pitch/yaw angles (in radians)
+void convert_quaternion_to_euler( float quaternion[4], float euler[3] );
+
 #ifdef __cplusplus
 }
 #endif
