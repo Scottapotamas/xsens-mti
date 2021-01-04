@@ -56,6 +56,14 @@ void xsens_mdata2_process( packet_buffer_t *packet, callback_event_t evt_cb )
                     memset( &output, 0, sizeof( mdata2_packet_t ) );
                 }
                 break;
+
+            default:
+                // Case switch should be an exhaustive match?
+                // Reset state?
+                md2_state      = XDI_PARSE_ID_B1;
+                bytes_consumed = 0;
+                memset( &output, 0, sizeof( mdata2_packet_t ) );
+                break;
         }
     }
 
@@ -65,8 +73,8 @@ void xsens_mdata2_process( packet_buffer_t *packet, callback_event_t evt_cb )
 typedef struct
 {
     uint16_t xid;
-    uint8_t event;
-    uint8_t type;
+    uint8_t  event;
+    uint8_t  type;
 } mdata2_decode_rules_t;
 
 // Entries with XSENS_EVT_TYPE_NONE aren't supported directly by the library
@@ -95,16 +103,10 @@ static const mdata2_decode_rules_t xid_decode_table[] = {
     { XDI_RAW_ACC_GYRO_MAG_TEMP, XSENS_EVT_RAW_ACC_GYRO_MAG_TEMP, XSENS_EVT_TYPE_NONE },
     { XDI_RAW_GYRO_TEMP, XSENS_EVT_RAW_GYRO_TEMP, XSENS_EVT_TYPE_NONE },
     { XDI_MAGNETIC_FIELD, XSENS_EVT_MAGNETIC, XSENS_EVT_TYPE_FLOAT3 },
-
     { XDI_STATUS_BYTE, XSENS_EVT_STATUS_BYTE, XSENS_EVT_TYPE_U8 },
-    // Casting to a bitfield is end-users responsibility.
-    //      union XDI_STATUS32_UNION status;
-    //      status.word = coalesce_32BE_32LE(&output->payload[0]);
-    //      printf("filterOK: %d\n", status.bitfield.filter_valid);
     { XDI_STATUS_WORD, XSENS_EVT_STATUS_WORD, XSENS_EVT_TYPE_U32 },
     { XDI_DEVICE_ID, XSENS_EVT_DEVICE_ID, XSENS_EVT_TYPE_U32 },
     { XDI_LOCATION_ID, XSENS_EVT_LOCATION_ID, XSENS_EVT_TYPE_U16 },
-
     { XDI_POSITION_ECEF, XSENS_EVT_POSITION_ECEF, XSENS_EVT_TYPE_FLOAT3 },
     { XDI_LAT_LON, XSENS_EVT_LAT_LON, XSENS_EVT_TYPE_FLOAT2 },
     { XDI_ALTITUDE_ELLIPSOID, XSENS_EVT_ALTITUDE_ELLIPSOID, XSENS_EVT_TYPE_FLOAT },
@@ -115,7 +117,7 @@ static const mdata2_decode_rules_t xid_decode_table[] = {
 // convert to LE and pass to user cb in a union
 void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb )
 {
-    EventData_t value = { 0 };
+    EventData_t                  value       = { 0 };
     const mdata2_decode_rules_t *decode_rule = 0;
 
     // Find the matching XID in the table

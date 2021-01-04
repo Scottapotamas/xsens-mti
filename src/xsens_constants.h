@@ -51,6 +51,7 @@ typedef enum
     XSENS_EVT_VELOCITY_XYZ,
 } EventFlag_t;
 
+// Enum describes possible types sent to user in the event data union
 typedef enum
 {
     XSENS_EVT_TYPE_NONE = 0,
@@ -64,6 +65,7 @@ typedef enum
     XSENS_EVT_TYPE_FLOAT9,
 } EventDataType_t;
 
+// Unionised data sent to user callback
 typedef struct
 {
     EventDataType_t type;
@@ -242,6 +244,10 @@ enum XDA_TYPE_IDENTIFIER
 };
 
 // 32-bit status structure
+//   Casting to bitfield is end-users responsibility.
+//      union XDI_STATUS32_UNION status;
+//      status.word = coalesce_32BE_32LE(&output->payload[0]);
+//      printf("filterOK: %d\n", status.bitfield.filter_valid);
 typedef struct
 {
     unsigned int self_test : 1;
