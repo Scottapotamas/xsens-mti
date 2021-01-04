@@ -21,33 +21,47 @@ typedef struct
 // Event flags sent to application-level code
 typedef enum
 {
-    XSENS_EVT_PACKET_COUNT = 0,
+    XSENS_EVT_TEMPERATURE = 0,
+    XSENS_EVT_UTC_TIME,
+    XSENS_EVT_PACKET_COUNT,
     XSENS_EVT_TIME_FINE,
     XSENS_EVT_TIME_COARSE,
-
     XSENS_EVT_QUATERNION,
+    XSENS_EVT_EULER,
+    XSENS_EVT_ROT_MATRIX,
+    XSENS_EVT_PRESSURE,
+    XSENS_EVT_DELTA_V,
     XSENS_EVT_DELTA_Q,
-
     XSENS_EVT_ACCELERATION,
     XSENS_EVT_FREE_ACCELERATION,
-    XSENS_EVT_DELTA_V,
-
+    XSENS_EVT_ACCELERATION_HR,
     XSENS_EVT_RATE_OF_TURN,
+    XSENS_EVT_RATE_OF_TURN_HR,
+    XSENS_EVT_GNSS_PVT_PULSE,
+    XSENS_EVT_RAW_ACC_GYRO_MAG_TEMP,
+    XSENS_EVT_RAW_GYRO_TEMP,
     XSENS_EVT_MAGNETIC,
-    XSENS_EVT_PRESSURE,
-    XSENS_EVT_TEMPERATURE,
-
+    XSENS_EVT_STATUS_BYTE,
     XSENS_EVT_STATUS_WORD,
+    XSENS_EVT_DEVICE_ID,
+    XSENS_EVT_LOCATION_ID,
+    XSENS_EVT_POSITION_ECEF,
+    XSENS_EVT_LAT_LON,
+    XSENS_EVT_ALTITUDE_ELLIPSOID,
+    XSENS_EVT_VELOCITY_XYZ,
 } EventFlag_t;
 
 typedef enum
 {
     XSENS_EVT_TYPE_NONE = 0,
+    XSENS_EVT_TYPE_U8,
     XSENS_EVT_TYPE_U16,
     XSENS_EVT_TYPE_U32,
     XSENS_EVT_TYPE_FLOAT,
+    XSENS_EVT_TYPE_FLOAT2,
     XSENS_EVT_TYPE_FLOAT3,
     XSENS_EVT_TYPE_FLOAT4,
+    XSENS_EVT_TYPE_FLOAT9,
 } EventDataType_t;
 
 typedef struct
@@ -55,11 +69,14 @@ typedef struct
     EventDataType_t type;
     union
     {
+        uint8_t u1;
         uint16_t u2;
         uint32_t u4;
         float    f4;
+        float    f4x2[2];
         float    f4x3[3];
         float    f4x4[4];
+        float    f4x9[9];
     } data;
 } EventData_t;
 
@@ -231,7 +248,7 @@ typedef struct
     unsigned int filter_valid : 1;
     unsigned int gnss_fix : 1;
     unsigned int no_rotation_status : 2;
-    unsigned int representitive_motion : 1;
+    unsigned int representative_motion : 1;
     unsigned int clock_bias_estimation : 1;
     unsigned int reserved_0 : 1;
     unsigned int clip_acc_x : 1;

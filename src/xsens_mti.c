@@ -153,7 +153,7 @@ void xsens_mti_handle_payload( interface_t *interface )
     // If the ID is recognised, call the handler function (if it exists)
     if( handler )
     {
-        callback_payload_t payload_handler_fn = handler->handler_fn;
+        callback_payload_t payload_handler_fn = (callback_payload_t)handler->handler_fn;
         if( payload_handler_fn )
         {
             most_recent_interface = interface;    // internally cache the interface for cb access
@@ -172,8 +172,11 @@ bool xsens_mti_override_id_handler( uint8_t id, callback_payload_t *user_fn )
         if( handler )
         {
             handler->handler_fn = user_fn;
+            return true;
         }
     }
+
+    return false;
 }
 
 message_handler_ref_t *xsens_mti_find_inbound_handler_entry( uint8_t find_id )
