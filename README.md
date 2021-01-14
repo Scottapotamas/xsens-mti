@@ -18,7 +18,9 @@ This library _aims_ to provide a more sane approach, with application code not r
 
 ## Does it work?
 
-[Yes, look at this example firmware and GUI](https://github.com/Scottapotamas/xsens-stm32-eui).
+[Yes, example firmware and GUI here](https://github.com/Scottapotamas/xsens-stm32-eui).
+
+![basic-charts](/home/scott/projects/xsens-mti/docs/basic-charts.png)
 
 MTManager was used with various output configurations to capture real packets alongside decoded reference outputs (see `/docs/mtmanager_packets.md`). These packets back the test-driven development approach of the library, while the [MT Low Level Documentation PDF](https://www.xsens.com/hubfs/Downloads/Manuals/MT_Low-Level_Documentation.pdf) was used as reference material.
 
