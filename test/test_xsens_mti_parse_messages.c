@@ -16,12 +16,12 @@
 // PRIVATE TYPES
  
 // PRIVATE DATA
-interface_t test_imu = { 0 };
+xsens_interface_t test_imu = { 0 };
 
 // PRIVATE FUNCTIONS
 
 void mock_output_function( uint8_t *buffer, uint16_t size );
-void mock_event_function( EventFlag_t event, EventData_t *data );
+void mock_event_function( XsensEventFlag_t event, XsensEventData_t *data );
 
 void mock_output_function( uint8_t *buffer, uint16_t size )
 {
@@ -33,14 +33,14 @@ void mock_output_function( uint8_t *buffer, uint16_t size )
 // so just cache all the callbacks and check against those?
 #define CACHE_DEPTH 20
 
-EventFlag_t cb_evt_flag_cache[CACHE_DEPTH];
-EventData_t cb_evt_data_cache[CACHE_DEPTH];
+XsensEventFlag_t cb_evt_flag_cache[CACHE_DEPTH];
+XsensEventData_t cb_evt_data_cache[CACHE_DEPTH];
 uint8_t cache_usage = 0;
 
-void mock_event_function( EventFlag_t event, EventData_t *data )
+void mock_event_function( XsensEventFlag_t event, XsensEventData_t *data )
 {
     cb_evt_flag_cache[cache_usage] = event;
-    memcpy( &cb_evt_data_cache[cache_usage], data, sizeof(EventData_t));
+    memcpy( &cb_evt_data_cache[cache_usage], data, sizeof(XsensEventData_t));
     cache_usage++;
 
     if( cache_usage > CACHE_DEPTH )

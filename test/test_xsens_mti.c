@@ -14,13 +14,13 @@
 // PRIVATE TYPES
  
 // PRIVATE DATA
-interface_t test_imu = { 0 };
+xsens_interface_t test_imu = { 0 };
 
 
 // PRIVATE FUNCTIONS
 
 void mock_output_function( uint8_t *buffer, uint16_t size );
-void mock_event_function( EventFlag_t event, EventData_t *data );
+void mock_event_function( XsensEventFlag_t event, XsensEventData_t *data );
 
 
 void mock_output_function( uint8_t *buffer, uint16_t size )
@@ -28,7 +28,7 @@ void mock_output_function( uint8_t *buffer, uint16_t size )
     printf("Output of %d bytes\n", size);
 }
 
-void mock_event_function( EventFlag_t event, EventData_t *data )
+void mock_event_function( XsensEventFlag_t event, XsensEventData_t *data )
 {
     printf("Notified of evt: %d\n", event);
 }
