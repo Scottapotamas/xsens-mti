@@ -197,6 +197,27 @@ enum XSENS_DEVICE_MODE
     MODE_MEASUREMENT,
 };
 
+typedef enum
+{
+    XSENS_BAUD_4800 = 0x0B,
+    XSENS_BAUD_9600 = 0x09,
+    XSENS_BAUD_11400 = 0x08,
+    XSENS_BAUD_19200 = 0x07,
+    XSENS_BAUD_28800 = 0x06,
+    XSENS_BAUD_38400 = 0x05,
+    XSENS_BAUD_57600 = 0x04,
+    XSENS_BAUD_76600 = 0x03,
+    XSENS_BAUD_115200 = 0x02,
+    XSENS_BAUD_230400 = 0x01,
+    XSENS_BAUD_460800 = 0x00,
+    XSENS_BAUD_921600 = 0x80,    // two valid bytes exist for this setting
+    // XSENS_BAUD_921600 = 0xA0,
+    XSENS_BAUD_2000000 = 0x0C,
+    XSENS_BAUD_3686400 = 0x0E,
+    XSENS_BAUD_4000000 = 0x0D,
+} XsensBaudSetting_t;
+
+
 // MData2 Field Identifiers
 enum XDA_TYPE_IDENTIFIER
 {

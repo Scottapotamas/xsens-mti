@@ -26,6 +26,11 @@ void xsens_mti_handle_payload( xsens_interface_t *interface );
 // Returns 0 if no match is found
 message_handler_ref_t *xsens_mti_find_inbound_handler_entry( uint8_t find_id );
 
+// Run through a buffer of bytes and return the CRC
+// Used when sending messages
+uint8_t xsens_mti_buffer_crc( uint8_t *buffer, uint16_t size );
+
+
 #ifdef __cplusplus
 }
 #endif

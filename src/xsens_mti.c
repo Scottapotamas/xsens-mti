@@ -192,8 +192,87 @@ message_handler_ref_t *xsens_mti_find_inbound_handler_entry( uint8_t find_id )
     return (message_handler_ref_t *)NULL;
 }
 
-void xsens_mti_send( void )
+uint8_t xsens_mti_buffer_crc( uint8_t *buffer, uint16_t size )
 {
+    uint8_t crc = 0;
+
+    for( uint16_t i = 0; i < size; i++ )
+    {
+        crc -= buffer[i];
+    }
+
+    return crc;
+}
+
+void xsens_mti_send( xsens_interface_t *interface, xsens_packet_buffer_t *packet )
+{
+    if( interface && packet )
+    {
+        uint8_t buffer[2048] = { 0 };
+        uint16_t buffer_pos = 0;
+        uint8_t crc = 0;
+
+        // Preamble
+        buffer[buffer_pos++] = PREAMBLE_BYTE;
+
+        // Device Address
+        buffer[buffer_pos++] = ADDRESS_BYTE;
+
+        // Message ID
+        buffer[buffer_pos++] = packet->message_id;
+
+        // Payload Length
+        if( packet->length < 0xFF )
+        {
+            buffer[buffer_pos++] = packet->length;
+        }
+        else
+        {
+            // Extended packet handling sets the normal length byte to 255,
+            // followed by two bytes of payload data
+            buffer[buffer_pos++] = 0xFF;
+
+            memcpy( &buffer[buffer_pos], (uint8_t *)packet->length, 2 );
+            buffer_pos += 2;
+        }
+
+        // Payload Data
+        memcpy( &buffer[buffer_pos], (uint8_t *)packet->payload, packet->length );
+        buffer_pos += packet->length;
+
+        // Calculate the CRC of the packet, exluding the preamble
+        buffer[buffer_pos] = xsens_mti_buffer_crc( &buffer[1], buffer_pos-1 );
+        buffer_pos += 1;
+
+        // Pass the buffer to the user so they can send to hardware
+        if( interface->output_cb )
+        {
+            interface->output_cb( buffer, buffer_pos );
+        }
+    }
+}
+
+void xsens_mti_query_baudrate( xsens_interface_t *interface )
+{
+    xsens_packet_buffer_t packet = { 0 };
+
+    packet.message_id = MT_REQBAUDRATE;
+    packet.length = 0;
+    packet.payload[0] = 0;
+
+    xsens_mti_send( interface, &packet );
+}
+
+
+void xsens_mti_set_baudrate( xsens_interface_t *interface, XsensBaudSetting_t baudrate )
+{
+    xsens_packet_buffer_t packet = { 0 };
+    
+    packet.message_id = MT_SETBAUDRATE;
+    packet.length = 1;
+    packet.payload[0] = baudrate;
+
+    xsens_mti_send( interface, &packet );
 }
 
 void xsens_internal_handle_device_id( xsens_packet_buffer_t *packet )
