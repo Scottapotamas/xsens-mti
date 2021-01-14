@@ -2,12 +2,12 @@
 #include "math.h"
 #include "stdlib.h"
 
-uint16_t coalesce_16BE_16LE( uint8_t *source )
+uint16_t xsens_coalesce_16BE_16LE( uint8_t *source )
 {
     return ( source[1] << 0 | source[0] << 8 );
 }
 
-uint32_t coalesce_32BE_32LE( uint8_t *source )
+uint32_t xsens_coalesce_32BE_32LE( uint8_t *source )
 {
     return ( ( source[3] << 0 )
              | ( source[2] << 8 )
@@ -15,7 +15,7 @@ uint32_t coalesce_32BE_32LE( uint8_t *source )
              | ( source[0] << 24 ) );
 }
 
-float coalesce_32BE_F32LE( uint8_t *source )
+float xsens_coalesce_32BE_F32LE( uint8_t *source )
 {
     float    f;
     uint8_t *f_ptr = (uint8_t *)&f;
@@ -28,7 +28,7 @@ float coalesce_32BE_F32LE( uint8_t *source )
     return f;
 }
 
-void convert_quaternion_to_euler( float quaternion[4], float euler[3] )
+void xsens_quaternion_to_euler( float *quaternion, float *euler )
 {
     float w = quaternion[0];
     float x = quaternion[1];

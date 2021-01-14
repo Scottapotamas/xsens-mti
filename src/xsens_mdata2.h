@@ -22,7 +22,7 @@ typedef struct
     uint8_t  payload[255];    // TODO: work out what size is actually needed
 } mdata2_packet_t;
 
-void xsens_mdata2_process( packet_buffer_t *packet, callback_event_t evt_cb );
+void xsens_mdata2_process( xsens_packet_buffer_t *packet, callback_event_t evt_cb );
 
 void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb );
 

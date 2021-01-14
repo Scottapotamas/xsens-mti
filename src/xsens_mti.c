@@ -5,7 +5,7 @@
 #include "xsens_mti_private.h"
 #include "xsens_utility.h"
 
-interface_t *most_recent_interface;
+xsens_interface_t *most_recent_interface;
 
 message_handler_ref_t inbound_handler_table[] = {
     { .id = MT_WAKEUP, .handler_fn = NULL },
@@ -34,7 +34,7 @@ message_handler_ref_t inbound_handler_table[] = {
 };
 
 // Helper to parse inbound data with one call
-void xsens_mti_parse_buffer( interface_t *interface, uint8_t *buffer, uint16_t size )
+void xsens_mti_parse_buffer( xsens_interface_t *interface, uint8_t *buffer, uint16_t size )
 {
     for( uint16_t i = 0; i < size; i++ )
     {
@@ -43,7 +43,7 @@ void xsens_mti_parse_buffer( interface_t *interface, uint8_t *buffer, uint16_t s
 }
 
 // Run each byte through the packet-level statemachine
-void xsens_mti_parse( interface_t *interface, uint8_t byte )
+void xsens_mti_parse( xsens_interface_t *interface, uint8_t byte )
 {
     // CRC is the sum of bytes including the CRC byte (ex PREAMBLE)
     if( interface->state != PARSER_PREAMBLE )
@@ -132,18 +132,18 @@ void xsens_mti_parse( interface_t *interface, uint8_t byte )
     }
 }
 
-void xsens_mti_reset_parser( interface_t *interface )
+void xsens_mti_reset_parser( xsens_interface_t *interface )
 {
     // Clear the parser state and buffers
-    memset( &( interface->packet ), 0, sizeof( packet_buffer_t ) );
+    memset( &( interface->packet ), 0, sizeof( xsens_packet_buffer_t ) );
     interface->payload_pos = 0;
     interface->crc         = 0;
 }
 
 // With a valid packet, process the payload
-void xsens_mti_handle_payload( interface_t *interface )
+void xsens_mti_handle_payload( xsens_interface_t *interface )
 {
-    packet_buffer_t *packet = &( interface->packet );
+    xsens_packet_buffer_t *packet = &( interface->packet );
 
     // Search the inbound handler table for a match
     message_handler_ref_t *handler = xsens_mti_find_inbound_handler_entry( packet->message_id );
@@ -196,20 +196,20 @@ void xsens_mti_send( void )
 {
 }
 
-void xsens_internal_handle_device_id( packet_buffer_t *packet )
+void xsens_internal_handle_device_id( xsens_packet_buffer_t *packet )
 {
-    EventData_t value = { 0 };
+    XsensEventData_t value = { 0 };
 
     if( packet->length == 4 )    // MTi 1, 10, 100
     {
         value.type    = XSENS_EVT_TYPE_U32;
-        value.data.u2 = coalesce_32BE_32LE( &packet->payload[0] );
+        value.data.u4 = xsens_coalesce_32BE_32LE( &packet->payload[0] );
     }
     else if( packet->length == 8 )    // MTi-600
     {
         // TODO: untested 8-byte device ID
         value.type    = XSENS_EVT_TYPE_U32;
-        value.data.u2 = coalesce_32BE_32LE( &packet->payload[4] );
+        value.data.u4 = xsens_coalesce_32BE_32LE( &packet->payload[4] );
     }
 
     if( most_recent_interface->event_cb )
@@ -218,38 +218,38 @@ void xsens_internal_handle_device_id( packet_buffer_t *packet )
     }
 }
 
-void xsens_internal_handle_product_code( packet_buffer_t *packet )
+void xsens_internal_handle_product_code( xsens_packet_buffer_t *packet )
 {
     // ASCII formatted code max 20 bytes
     // TODO: handle product code
 }
 
-void xsens_internal_handle_hardware_version( packet_buffer_t *packet )
+void xsens_internal_handle_hardware_version( xsens_packet_buffer_t *packet )
 {
     // TODO: handle product code
 
     //    uint8_t hw_version[2];
     //    uint16_t *hw_ptr = (uint16_t *)&hw_version;
-    //    hw_ptr           = coalesce_16BE_16LE( &packet->payload[0] );
+    //    hw_ptr           = xsens_coalesce_16BE_16LE( &packet->payload[0] );
 }
 
-void xsens_internal_handle_firmware_version( packet_buffer_t *packet )
+void xsens_internal_handle_firmware_version( xsens_packet_buffer_t *packet )
 {
     // TODO: handle firmware version
 
     uint8_t  major    = packet->payload[0];
     uint8_t  minor    = packet->payload[1];
     uint8_t  revision = packet->payload[2];
-    uint32_t build    = coalesce_32BE_32LE( &packet->payload[3] );
-    uint32_t scm      = coalesce_32BE_32LE( &packet->payload[7] );
+    uint32_t build    = xsens_coalesce_32BE_32LE( &packet->payload[3] );
+    uint32_t scm      = xsens_coalesce_32BE_32LE( &packet->payload[7] );
 }
 
-void xsens_internal_handle_selftest_results( packet_buffer_t *packet )
+void xsens_internal_handle_selftest_results( xsens_packet_buffer_t *packet )
 {
     // TODO: handle selftest results
 }
 
-void xsens_internal_handle_error( packet_buffer_t *packet )
+void xsens_internal_handle_error( xsens_packet_buffer_t *packet )
 {
     uint8_t error_code = packet->payload[0];
 
@@ -280,7 +280,7 @@ void xsens_internal_handle_error( packet_buffer_t *packet )
      */
 }
 
-void xsens_internal_handle_mdata2( packet_buffer_t *packet )
+void xsens_internal_handle_mdata2( xsens_packet_buffer_t *packet )
 {
     // MData2 packets contain 1 to n smaller packets
     // with variable length fields, see xsens_mdata2.c/.h

@@ -8,18 +8,18 @@ extern "C" {
 #include "xsens_mti.h"
 
 // Library provided payload handler functions
-void xsens_internal_handle_device_id( packet_buffer_t *packet );
-void xsens_internal_handle_product_code( packet_buffer_t *packet );
-void xsens_internal_handle_hardware_version( packet_buffer_t *packet );
-void xsens_internal_handle_firmware_version( packet_buffer_t *packet );
-void xsens_internal_handle_selftest_results( packet_buffer_t *packet );
-void xsens_internal_handle_error( packet_buffer_t *packet );
+void xsens_internal_handle_device_id( xsens_packet_buffer_t *packet );
+void xsens_internal_handle_product_code( xsens_packet_buffer_t *packet );
+void xsens_internal_handle_hardware_version( xsens_packet_buffer_t *packet );
+void xsens_internal_handle_firmware_version( xsens_packet_buffer_t *packet );
+void xsens_internal_handle_selftest_results( xsens_packet_buffer_t *packet );
+void xsens_internal_handle_error( xsens_packet_buffer_t *packet );
 
-void xsens_internal_handle_mdata2( packet_buffer_t *packet );
+void xsens_internal_handle_mdata2( xsens_packet_buffer_t *packet );
 
 // Responsible for calling downstream handler and post-processing functions
 // after a valid packet is parsed
-void xsens_mti_handle_payload( interface_t *interface );
+void xsens_mti_handle_payload( xsens_interface_t *interface );
 
 // Search the message handler table for a given ID
 // Returns a pointer to the entry if it exists

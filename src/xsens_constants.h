@@ -16,7 +16,7 @@ typedef struct
     uint8_t  message_id;
     uint16_t length;
     uint8_t  payload[2048];
-} packet_buffer_t;
+} xsens_packet_buffer_t;
 
 // Event flags sent to application-level code
 typedef enum
@@ -49,7 +49,7 @@ typedef enum
     XSENS_EVT_LAT_LON,
     XSENS_EVT_ALTITUDE_ELLIPSOID,
     XSENS_EVT_VELOCITY_XYZ,
-} EventFlag_t;
+} XsensEventFlag_t;
 
 // Enum describes possible types sent to user in the event data union
 typedef enum
@@ -63,12 +63,12 @@ typedef enum
     XSENS_EVT_TYPE_FLOAT3,
     XSENS_EVT_TYPE_FLOAT4,
     XSENS_EVT_TYPE_FLOAT9,
-} EventDataType_t;
+} XsensEventDataType_t;
 
 // Unionised data sent to user callback
 typedef struct
 {
-    EventDataType_t type;
+    XsensEventDataType_t type;
     union
     {
         uint8_t u1;
@@ -80,11 +80,11 @@ typedef struct
         float    f4x4[4];
         float    f4x9[9];
     } data;
-} EventData_t;
+} XsensEventData_t;
 
 // Userspace callback to notify application layer code of a relevant event
 // These events are accompanied by output-ready decoded data
-typedef void ( *callback_event_t )( EventFlag_t, EventData_t * );
+typedef void ( *callback_event_t )( XsensEventFlag_t, XsensEventData_t * );
 
 // Callback to userspace serial write function
 // Uses args for a uint8_t buffer of bytes, with a uint16_t size value
@@ -98,7 +98,7 @@ typedef void ( *callback_data_out_t )( uint8_t *, uint16_t );
 #define LENGTH_EXTENDED_MODE 0xFF
 #define LENGTH_NONE          0x00
 
-enum ERRORCODE
+enum XSENS_ERRORCODE
 {
     ERROR_PERIOD_INVALID    = 0x03,
     ERROR_MESSAGE_INVALID   = 0x04,
@@ -109,7 +109,7 @@ enum ERRORCODE
 };
 
 // Message Identifiers for MTi->HOST
-enum MESSAGE_ID_INBOUND
+enum XSENS_MESSAGE_ID_INBOUND
 {
     MT_WAKEUP               = 0x3E,
     MT_GOTOCONFIGACK        = 0x31,
@@ -137,7 +137,7 @@ enum MESSAGE_ID_INBOUND
 };
 
 // Message Identifiers for Host->MTi
-enum MESSAGE_ID_OUTBOUND
+enum XSENS_MESSAGE_ID_OUTBOUND
 {
     MT_WAKEUPACK                  = 0x3F,
     MT_GOTOCONFIG                 = 0x30,
@@ -190,7 +190,7 @@ enum MESSAGE_ID_OUTBOUND
     MT_FORWARDGNSSDATA            = 0xE2,
 };
 
-enum DEVICE_MODE
+enum XSENS_DEVICE_MODE
 {
     MODE_WAKEUP = 0,
     MODE_CONFIG,
@@ -246,7 +246,7 @@ enum XDA_TYPE_IDENTIFIER
 // 32-bit status structure
 //   Casting to bitfield is end-users responsibility.
 //      union XDI_STATUS32_UNION status;
-//      status.word = coalesce_32BE_32LE(&output->payload[0]);
+//      status.word = xsens_coalesce_32BE_32LE(&output->payload[0]);
 //      printf("filterOK: %d\n", status.bitfield.filter_valid);
 typedef struct
 {

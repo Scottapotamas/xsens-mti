@@ -7,7 +7,7 @@
 // This handler walks through the buffer, identifies the XDA type from two bytes
 // Then applies relevant conversions back into native types/structures as necessary
 // Packets don't have a fixed number of child elements
-void xsens_mdata2_process( packet_buffer_t *packet, callback_event_t evt_cb )
+void xsens_mdata2_process( xsens_packet_buffer_t *packet, callback_event_t evt_cb )
 {
     mdata2_parser_state_t md2_state      = XDI_PARSE_ID_B1;
     mdata2_packet_t       output         = { 0 };
@@ -117,7 +117,7 @@ static const mdata2_decode_rules_t xid_decode_table[] = {
 // convert to LE and pass to user cb in a union
 void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb )
 {
-    EventData_t                  value       = { 0 };
+    XsensEventData_t             value       = { 0 };
     const mdata2_decode_rules_t *decode_rule = 0;
 
     // Find the matching XID in the table
@@ -145,45 +145,45 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
                 break;
 
             case XSENS_EVT_TYPE_U16:
-                value.data.u2 = coalesce_16BE_16LE( &output->payload[0] );
+                value.data.u2 = xsens_coalesce_16BE_16LE( &output->payload[0] );
                 break;
 
             case XSENS_EVT_TYPE_U32:
-                value.data.u4 = coalesce_32BE_32LE( &output->payload[0] );
+                value.data.u4 = xsens_coalesce_32BE_32LE( &output->payload[0] );
                 break;
 
             case XSENS_EVT_TYPE_FLOAT:
-                value.data.f4 = coalesce_32BE_F32LE( &output->payload[0] );
+                value.data.f4 = xsens_coalesce_32BE_F32LE( &output->payload[0] );
                 break;
 
             case XSENS_EVT_TYPE_FLOAT2:
-                value.data.f4x2[0] = coalesce_32BE_F32LE( &output->payload[0] );
-                value.data.f4x2[1] = coalesce_32BE_F32LE( &output->payload[4] );
+                value.data.f4x2[0] = xsens_coalesce_32BE_F32LE( &output->payload[0] );
+                value.data.f4x2[1] = xsens_coalesce_32BE_F32LE( &output->payload[4] );
                 break;
 
             case XSENS_EVT_TYPE_FLOAT3:
-                value.data.f4x3[0] = coalesce_32BE_F32LE( &output->payload[0] );
-                value.data.f4x3[1] = coalesce_32BE_F32LE( &output->payload[4] );
-                value.data.f4x3[2] = coalesce_32BE_F32LE( &output->payload[8] );
+                value.data.f4x3[0] = xsens_coalesce_32BE_F32LE( &output->payload[0] );
+                value.data.f4x3[1] = xsens_coalesce_32BE_F32LE( &output->payload[4] );
+                value.data.f4x3[2] = xsens_coalesce_32BE_F32LE( &output->payload[8] );
                 break;
 
             case XSENS_EVT_TYPE_FLOAT4:
-                value.data.f4x4[0] = coalesce_32BE_F32LE( &output->payload[0] );
-                value.data.f4x4[1] = coalesce_32BE_F32LE( &output->payload[4] );
-                value.data.f4x4[2] = coalesce_32BE_F32LE( &output->payload[8] );
-                value.data.f4x4[3] = coalesce_32BE_F32LE( &output->payload[12] );
+                value.data.f4x4[0] = xsens_coalesce_32BE_F32LE( &output->payload[0] );
+                value.data.f4x4[1] = xsens_coalesce_32BE_F32LE( &output->payload[4] );
+                value.data.f4x4[2] = xsens_coalesce_32BE_F32LE( &output->payload[8] );
+                value.data.f4x4[3] = xsens_coalesce_32BE_F32LE( &output->payload[12] );
                 break;
 
             case XSENS_EVT_TYPE_FLOAT9:
-                value.data.f4x9[0] = coalesce_32BE_F32LE( &output->payload[0] );
-                value.data.f4x9[1] = coalesce_32BE_F32LE( &output->payload[4] );
-                value.data.f4x9[2] = coalesce_32BE_F32LE( &output->payload[8] );
-                value.data.f4x9[3] = coalesce_32BE_F32LE( &output->payload[12] );
-                value.data.f4x9[4] = coalesce_32BE_F32LE( &output->payload[16] );
-                value.data.f4x9[5] = coalesce_32BE_F32LE( &output->payload[20] );
-                value.data.f4x9[6] = coalesce_32BE_F32LE( &output->payload[24] );
-                value.data.f4x9[7] = coalesce_32BE_F32LE( &output->payload[28] );
-                value.data.f4x9[8] = coalesce_32BE_F32LE( &output->payload[32] );
+                value.data.f4x9[0] = xsens_coalesce_32BE_F32LE( &output->payload[0] );
+                value.data.f4x9[1] = xsens_coalesce_32BE_F32LE( &output->payload[4] );
+                value.data.f4x9[2] = xsens_coalesce_32BE_F32LE( &output->payload[8] );
+                value.data.f4x9[3] = xsens_coalesce_32BE_F32LE( &output->payload[12] );
+                value.data.f4x9[4] = xsens_coalesce_32BE_F32LE( &output->payload[16] );
+                value.data.f4x9[5] = xsens_coalesce_32BE_F32LE( &output->payload[20] );
+                value.data.f4x9[6] = xsens_coalesce_32BE_F32LE( &output->payload[24] );
+                value.data.f4x9[7] = xsens_coalesce_32BE_F32LE( &output->payload[28] );
+                value.data.f4x9[8] = xsens_coalesce_32BE_F32LE( &output->payload[32] );
                 break;
 
             default:
