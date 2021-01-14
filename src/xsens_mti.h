@@ -54,9 +54,13 @@ bool xsens_mti_override_id_handler( uint8_t id, callback_payload_t *user_fn );
 // Send a ready-made packet to hardware
 void xsens_mti_send( xsens_interface_t *interface, xsens_packet_buffer_t *packet );
 
+// Send a request message (no payload) to hardware
+void xsens_mti_request( xsens_interface_t *interface, uint8_t id );
 
-void xsens_mti_query_baudrate( xsens_interface_t *interface );
+
+// Helper functions for configuring IMU settings
 void xsens_mti_set_baudrate( xsens_interface_t *interface, XsensBaudSetting_t baudrate );
+void xsens_mti_reset_orientation( xsens_interface_t *interface, XsensOrientationSetting_t code );
 
 #ifdef __cplusplus
 }

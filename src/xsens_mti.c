@@ -237,8 +237,11 @@ void xsens_mti_send( xsens_interface_t *interface, xsens_packet_buffer_t *packet
         }
 
         // Payload Data
-        memcpy( &buffer[buffer_pos], (uint8_t *)packet->payload, packet->length );
-        buffer_pos += packet->length;
+        if( packet->length != 0 )
+        {
+            memcpy( &buffer[buffer_pos], (uint8_t *)packet->payload, packet->length );
+            buffer_pos += packet->length;
+        }
 
         // Calculate the CRC of the packet, exluding the preamble
         buffer[buffer_pos] = xsens_mti_buffer_crc( &buffer[1], buffer_pos-1 );
@@ -252,16 +255,17 @@ void xsens_mti_send( xsens_interface_t *interface, xsens_packet_buffer_t *packet
     }
 }
 
-void xsens_mti_query_baudrate( xsens_interface_t *interface )
+void xsens_mti_request( xsens_interface_t *interface, uint8_t id )
 {
     xsens_packet_buffer_t packet = { 0 };
 
-    packet.message_id = MT_REQBAUDRATE;
+    packet.message_id = id;
     packet.length = 0;
     packet.payload[0] = 0;
 
     xsens_mti_send( interface, &packet );
 }
+
 
 
 void xsens_mti_set_baudrate( xsens_interface_t *interface, XsensBaudSetting_t baudrate )
@@ -274,6 +278,24 @@ void xsens_mti_set_baudrate( xsens_interface_t *interface, XsensBaudSetting_t ba
 
     xsens_mti_send( interface, &packet );
 }
+
+
+void xsens_mti_reset_orientation( xsens_interface_t *interface, XsensOrientationSetting_t code )
+{
+    xsens_packet_buffer_t packet = { 0 };
+    
+    packet.message_id = MT_RESETORIENTATION;
+    packet.length = 2;
+    packet.payload[0] = 0x00;
+    packet.payload[1] = code;
+
+    xsens_mti_send( interface, &packet );
+}
+
+
+
+
+
 
 void xsens_internal_handle_device_id( xsens_packet_buffer_t *packet )
 {

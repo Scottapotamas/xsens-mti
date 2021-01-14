@@ -69,8 +69,9 @@ void test_send_configstate( void )
                             0x00,
                             0xD1 };
 
-    xsens_mti_send( &test_imu, 0 );
-                            
+
+    xsens_mti_request( &test_imu, MT_GOTOCONFIG );
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );          
 }
 
 void test_send_measuremenetstate( void )
@@ -82,11 +83,12 @@ void test_send_measuremenetstate( void )
                             0x00,
                             0xF1 };
 
-                            
+    xsens_mti_request( &test_imu, MT_GOTOMEASUREMENT );
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
 
-void test_send_reqbaud( void )
+void test_request_baud( void )
 {   
 
     uint8_t expected[] = {  0xFA, 
@@ -95,8 +97,7 @@ void test_send_reqbaud( void )
                             0x00,
                             0xE9 };
 
-    // xsens_mti_query_baudrate( &test_imu );
-
+    xsens_mti_request( &test_imu, MT_REQBAUDRATE );
     TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
@@ -111,7 +112,6 @@ void test_send_setbaud_115k2( void )
                             0xE6 };
 
     xsens_mti_set_baudrate( &test_imu, XSENS_BAUD_115200 );
-
     TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
@@ -126,7 +126,6 @@ void test_send_setbaud_230k4( void )
                             0xE7 };
 
     xsens_mti_set_baudrate( &test_imu, XSENS_BAUD_230400 );
-
     TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
     
 }
@@ -142,7 +141,6 @@ void test_send_setbaud_921k6( void )
                             0x68 };
 
     xsens_mti_set_baudrate( &test_imu, XSENS_BAUD_921600 );
-
     TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
@@ -157,7 +155,8 @@ void test_send_resetorientation_heading( void )
                             0x01,
                             0x5A };
 
-                            
+    xsens_mti_reset_orientation( &test_imu, XSENS_ORIENTATION_HEADING_RESET );
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );                   
 }
 
 void test_send_resetorientation_align( void )
@@ -171,10 +170,11 @@ void test_send_resetorientation_align( void )
                             0x04,
                             0x57 };
 
-                            
+   xsens_mti_reset_orientation( &test_imu, XSENS_ORIENTATION_ALIGNMENT_RESET );
+   TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
-void test_send_reqdid( void )
+void test_request_reqdid( void )
 {   
 
     uint8_t expected[] = {  0xFA, 
@@ -183,53 +183,58 @@ void test_send_reqdid( void )
                             0x00,
                             0x01 };
 
-                            
+    xsens_mti_request( &test_imu, MT_REQDID );
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
-void test_send_reqproductcode( void )
+void test_request_reqproductcode( void )
 {   
 
     uint8_t expected[] = {  0xFA, 
                             0xFF, 
-                            0x28, 
+                            0x1C, 
                             0x00,
-                            0x01 };
+                            0xE5 };
 
-                            
+    xsens_mti_request( &test_imu, MT_REQPRODUCTCODE );
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
-void test_send_reqhardwareversion( void )
+void test_request_hardwareversion( void )
 {   
 
     uint8_t expected[] = {  0xFA, 
                             0xFF, 
                             0x1E, 
                             0x00,
-                            0x01 };
+                            0xE3 };
 
-                            
+    xsens_mti_request( &test_imu, MT_REQHARDWAREVERSION );
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
-void test_send_reqfirmwareversion( void )
+void test_request_reqfirmwareversion( void )
 {   
 
     uint8_t expected[] = {  0xFA, 
                             0xFF, 
-                            0x13, 
+                            0x12, 
                             0x00,
-                            0x01 };
+                            0xEF };
 
-                            
+    xsens_mti_request( &test_imu, MT_REQFWREV );
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
-void test_send_runselftest( void )
+void test_request_runselftest( void )
 {   
 
     uint8_t expected[] = {  0xFA, 
                             0xFF, 
                             0x24, 
                             0x00,
-                            0x01 };
+                            0xDD };
 
-                            
+    xsens_mti_request( &test_imu, MT_RUNSELFTEST );
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
