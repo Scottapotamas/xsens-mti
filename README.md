@@ -37,9 +37,11 @@ Most of the xsens IMU hardware is pretty expensive. So it's unlikely many people
 
 # Usage
 
-A minimal Arduino compatible implementation is described in `/example/motion`.
+A minimal Arduino compatible implementation is described in `/example/basics` and is quickly explained in the following sections.
 
-## Basics
+> Examples aren't exhaustive across all messages/payloads, though enums describing possible inbound/outbound message identifiers, and the list of callback event flags [is described in the `xsens_constants` header](src/xsens_constants.h).
+
+## Basic Setup
 
 - Include `xsens-mti.h` in your application code.
 
@@ -128,6 +130,41 @@ void imu_event_cb( XsensEventFlag_t event, XsensEventData_t *mtdata )
 }
 ```
 
+### XsensEventFlag list
+
+List of possible user-facing events is listed below. I'd recommend just looking at the `mdata2_decode_rules`  table [in `xsens_mdata2.c`](src/xsens_mdata2.c)
+
+```
+XSENS_EVT_TEMPERATURE
+XSENS_EVT_UTC_TIME
+XSENS_EVT_PACKET_COUNT
+XSENS_EVT_TIME_FINE
+XSENS_EVT_TIME_COARSE
+XSENS_EVT_QUATERNION
+XSENS_EVT_EULER
+XSENS_EVT_ROT_MATRIX
+XSENS_EVT_PRESSURE
+XSENS_EVT_DELTA_V
+XSENS_EVT_DELTA_Q
+XSENS_EVT_ACCELERATION
+XSENS_EVT_FREE_ACCELERATION
+XSENS_EVT_ACCELERATION_HR
+XSENS_EVT_RATE_OF_TURN
+XSENS_EVT_RATE_OF_TURN_HR
+XSENS_EVT_GNSS_PVT_PULSE
+XSENS_EVT_RAW_ACC_GYRO_MAG_TEMP
+XSENS_EVT_RAW_GYRO_TEMP
+XSENS_EVT_MAGNETIC
+XSENS_EVT_STATUS_BYTE
+XSENS_EVT_STATUS_WORD
+XSENS_EVT_DEVICE_ID
+XSENS_EVT_LOCATION_ID
+XSENS_EVT_POSITION_ECEF
+XSENS_EVT_LAT_LON
+XSENS_EVT_ALTITUDE_ELLIPSOID
+XSENS_EVT_VELOCITY_XYZ
+```
+
 ## Overriding parser functionality
 
 In situations where you want to handle a packet directly, declare your own handler function to process the payload.
@@ -165,6 +202,35 @@ uint32_t xsens_coalesce_32BE_32LE( uint8_t *source );
 float    xsens_coalesce_32BE_F32LE( uint8_t *source );
 ```
 
+The possible message identifiers (and the id's with integrated handling) are paired in this [partially populated 'jump table'](src/xsens_constants.h).
+
+## Sending packets to the IMU
+
+For simple queries against the hardware, use the request function with the message ID. When the device responds, the library (or user-overridden callback) will receive a callback.
+
+```c
+xsens_mti_request( &imu_interface, MT_REQFWREV );
+```
+
+Some helper functions are provided for configuration:
+
+```c
+xsens_mti_set_baudrate( &imu_interface, XSENS_BAUD_460800 );
+xsens_mti_reset_orientation( &imu_interface, XSENS_ORIENTATION_ALIGNMENT_RESET );
+```
+
+Beyond this, create a `xsens_packet_buffer_t` object manually and send it to hardware:
+
+```c
+packet.message_id = MT_SETBAUDRATE;
+packet.length = 1;
+packet.payload[0] = 0x80;
+
+xsens_mti_send( interface, &packet );
+```
+
+
+
 # Running tests
 
 Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby/rake) based testing framework with `Unity` and `CMock`.
@@ -176,7 +242,7 @@ I don't provide Ceedling's vendor files inside this repo, so first runs need to 
    - You might need to add execution permission first. Run `chmod +x setup_tests.sh`.
    - Depending on your Ruby/Gem system configuration things may not work first try. Failing that, manually install `ceedling` with `gem install ceedling`.
 
-2. Run the `setup_tests.sh` script. If you don't have ceedling installed, it will prompt to install the ruby gem.
+2. Run the `setup_tests.sh` script. If you don't have Ceedling installed, it will prompt to install the ruby gem.
 
 3. Once setup, run `ceedling` or `ceedling test:all`.
 
@@ -186,7 +252,7 @@ I don't provide Ceedling's vendor files inside this repo, so first runs need to 
 - Use `ceedling utils:gcov` to generate a pretty HTML report.
   - HTML output is located in the `/build/artifacts/gcov` folder.
 
-You need `gcovr` installed, and on some Linux distros, may also need a `gcovr` runtime dependancy `jinja2`.
+You need `gcovr` installed, and on some Linux distros, may also need a `gcovr` run-time dependency `jinja2`.
 
 # References & Acknowledgement
 
