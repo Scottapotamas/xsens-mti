@@ -59,12 +59,12 @@ A minimal Arduino compatible implementation is described in `/example/basics` an
   void imu_write_cb( uint8_t *buffer, uint16_t length );
   ```
 
-- Declare a `interface_t`, and pass it pointers to those two callback functions:
+- Declare a `xsens_interface_t`, and pass it pointers to those two callback functions:
 
   - At compile time:
 
     ```c
-    interface_t imu_interface = {.event_cb = &imu_event_cb, .output_cb = &imu_write_cb};
+    xsens_interface_t imu_interface = {.event_cb = &imu_event_cb, .output_cb = &imu_write_cb};
     ```
 
   - At run-time:
@@ -192,7 +192,7 @@ bool ok = xsens_mti_override_id_handler( MT_ICCCOMMANDACK, &imu_icc_command_ack 
 
 When the parser has a valid packet (passed CRC check), the callback is fired.
 
-> Note that the `packet_buffer_t` structure being pointed to is contained in the user-space `interface_t` state variable (typically heap allocated).
+> Note that the `packet_buffer_t` structure being pointed to is contained in the user-space `xsens_interface_t` state variable (typically heap allocated).
 >
 > This data will persist after the callback, but **will be wiped** when another packet is received.
 
@@ -232,21 +232,18 @@ xsens_mti_send( interface, &packet );
 ```
 
 
-
 # Running tests
+
+[![Ceedling](https://github.com/Scottapotamas/xsens-mti/actions/workflows/ceedling.yml/badge.svg)](https://github.com/Scottapotamas/xsens-mti/actions/workflows/ceedling.yml)
 
 Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby/rake) based testing framework with `Unity` and `CMock`.
 
-I don't provide Ceedling's vendor files inside this repo, so first runs need to 're-initalise' the test structure.
-
-1. Use the provided `setup_tests.sh` script to begin.
+1. Use the provided `setup_tests.sh` script to begin *if* you don't have Ceedling installed.
 
    - You might need to add execution permission first. Run `chmod +x setup_tests.sh`.
    - Depending on your Ruby/Gem system configuration things may not work first try. Failing that, manually install `ceedling` with `gem install ceedling`.
 
-2. Run the `setup_tests.sh` script. If you don't have Ceedling installed, it will prompt to install the ruby gem.
-
-3. Once setup, run `ceedling` or `ceedling test:all`.
+2. Once setup, run `ceedling` or `ceedling test:all`.
 
 ## Coverage Analysis
 

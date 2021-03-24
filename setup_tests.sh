@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2016-2020 Electric UI
+# Copyright (c) 2016-2021 Electric UI
 # MIT Licenced - see LICENCE for details.
 
 echo "Checking if ceedling already exists on the system..."
@@ -32,13 +32,6 @@ else
 	gem install --user-install ceedling
 
 fi
-
-# Setup project
-echo "Populating the test folder with vendor files..."
-sleep 1 # Let the user read the line
-cd ../
-echo "n" | ceedling new test
-
 
 echo " - Execute 'ceedling test:all' to run all tests"
 echo ""
