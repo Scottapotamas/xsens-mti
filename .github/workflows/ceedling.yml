@@ -1,0 +1,32 @@
+name: Ceedling
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  unit-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Ruby 2.6
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.6
+
+    # Install ceedling
+    - name: Install Ceedling
+      run: gem install ceedling
+
+    # Runs a set of commands using the runners shell
+    - name: Setup test files
+      run: ceedling new test
+
+    # Runs a set of commands using the runners shell
+    - name: Test
+      run: ceedling test:all
