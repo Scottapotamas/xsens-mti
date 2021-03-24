@@ -7,7 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-
   unit-test:
     runs-on: ubuntu-latest
 
@@ -22,10 +21,6 @@ jobs:
     # Install ceedling
     - name: Install Ceedling
       run: gem install ceedling
-
-    # Runs a set of commands using the runners shell
-    - name: Setup test files
-      run: ceedling new test
 
     # Runs a set of commands using the runners shell
     - name: Test
