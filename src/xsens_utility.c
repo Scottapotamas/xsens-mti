@@ -36,12 +36,12 @@ void xsens_quaternion_to_euler( float *quaternion, float *euler )
     float z = quaternion[3];
 
     // Roll: x-axis
-    double sinr_cosp = 2 * ( w * x + y * z );
-    double cosr_cosp = 1 - 2 * ( x * x + y * y );
+    float sinr_cosp = 2 * ( w * x + y * z );
+    float cosr_cosp = 1 - 2 * ( x * x + y * y );
     euler[0]        = (float)atan2( sinr_cosp, cosr_cosp );
 
     // Pitch: y-axis
-    double sinp = 2 * ( w * y - z * x );
+    float sinp = 2 * ( w * y - z * x );
     if( fabs( sinp ) >= 1 )
     {
         euler[1] = (float)copysign( M_PI / 2, sinp );    // use 90 degrees if out of range
@@ -52,7 +52,7 @@ void xsens_quaternion_to_euler( float *quaternion, float *euler )
     }
 
     // Yaw: z-axis
-    double siny_cosp = 2 * ( w * z + x * y );
-    double cosy_cosp = 1 - 2 * ( y * y + z * z );
+    float siny_cosp = 2 * ( w * z + x * y );
+    float cosy_cosp = 1 - 2 * ( y * y + z * z );
     euler[2]        = (float)atan2( siny_cosp, cosy_cosp );
 }
