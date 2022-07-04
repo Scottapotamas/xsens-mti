@@ -15,7 +15,7 @@ typedef struct
 {
     uint8_t  message_id;
     uint16_t length;
-    uint8_t  payload[2048];
+    uint8_t  payload[2048]; // xsens 'extended packets' can be up to 2kB
 } xsens_packet_buffer_t;
 
 // Event flags sent to application-level code

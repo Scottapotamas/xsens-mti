@@ -56,7 +56,7 @@ A minimal Arduino compatible implementation is described in `/example/basics` an
 - Create another callback function which is used by the library to write binary data to the IMU:
 
   ```c
-  void imu_write_cb( uint8_t *buffer, uint16_t length );
+  void imu_write_cb( uint8_t *buffer, uint16_t len );
   ```
 
 - Declare a `xsens_interface_t`, and pass it pointers to those two callback functions:
@@ -90,6 +90,20 @@ A minimal Arduino compatible implementation is described in `/example/basics` an
     ```
 
 That's it.
+
+### Low RAM targets
+
+The xsens packet specification allows for 'extended length' payloads, up to 2048B.
+
+Current implementation in this library allows for these with a sufficiently large buffer. This means the default library implementation will exhaust RAM on particularly constrained targets like Atmel 328p (Arduino Uno).
+
+If you find yourself in this unique situation,
+
+1. Open `/src/xsens_constants.h` in your editor
+2. Manually reduce the buffer length in `xsens_packet_buffer_t` to something larger than 255, i.e. `uint8_t  payload[256];`
+3. Try building and hope it fits on your micro.
+4. Reconfigure your IMU with MTManager to disable GNSS `PVT` and/or `SatInfo` packets, as these are most likely to need large packets.
+4. Re-think your system design, as your IMU is massively overkill for your requirements or your micro is inadequate for your task! 
 
 ## Using motion data
 
