@@ -107,7 +107,7 @@ void imu_callback( XsensEventFlag_t event, XsensEventData_t *mtdata )
 }
 
 // The library calls this function to send packets to the IMU
-void imu_send_data( uint8_t *data, uint16_t length )
+void imu_send_data( uint8_t *data, uint16_t len )
 {
     Serial.write( data, len );
 }
