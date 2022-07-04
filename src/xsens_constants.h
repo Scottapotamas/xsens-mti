@@ -71,7 +71,7 @@ typedef struct
     XsensEventDataType_t type;
     union
     {
-        uint8_t u1;
+        uint8_t  u1;
         uint16_t u2;
         uint32_t u4;
         float    f4;
