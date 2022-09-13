@@ -122,7 +122,7 @@ enum XSENS_MESSAGE_ID_INBOUND
     MT_HARDWAREVERSION      = 0x1F,
     MT_FIRMWAREREV          = 0x13,
     MT_SELFTESTRESULTS      = 0x25,
-    MT_MT_ERROR             = 0x42,
+    MT_ERROR                = 0x42,
     MT_WARNING              = 0x43,
     MT_CONFIGURATION        = 0x0D,
     MT_MTDATA2              = 0x36,

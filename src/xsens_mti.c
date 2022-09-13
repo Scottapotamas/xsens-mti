@@ -17,7 +17,7 @@ message_handler_ref_t inbound_handler_table[] = {
     { .id = MT_HARDWAREVERSION, .handler_fn = &xsens_internal_handle_hardware_version },
     { .id = MT_FIRMWAREREV, .handler_fn = &xsens_internal_handle_firmware_version },
     { .id = MT_SELFTESTRESULTS, .handler_fn = &xsens_internal_handle_selftest_results },
-    { .id = MT_MT_ERROR, .handler_fn = &xsens_internal_handle_error },
+    { .id = MT_ERROR, .handler_fn = &xsens_internal_handle_error },
     { .id = MT_WARNING, .handler_fn = NULL },
     { .id = MT_CONFIGURATION, .handler_fn = NULL },
     { .id = MT_MTDATA2, .handler_fn = &xsens_internal_handle_mdata2 },
