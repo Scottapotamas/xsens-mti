@@ -18,11 +18,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: arduino/report-size-deltas@v1
     - uses: arduino/compile-sketches@v1
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        enable-deltas-report: true
         fqbn: ${{ matrix.fqbn }}
         libraries: "- source-path: ./"
         sketch-paths: |
@@ -42,7 +40,6 @@ jobs:
       - uses: arduino/compile-sketches@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          enable-deltas-report: true
           platforms: |
             - name: esp32:esp32
               source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
