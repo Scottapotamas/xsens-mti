@@ -16,12 +16,13 @@
 // PRIVATE DATA
 xsens_interface_t test_imu = { 0 };
 
+uint32_t mocked_fn_override_called = 0;
 
 // PRIVATE FUNCTIONS
 
 void mock_output_function( uint8_t *buffer, uint16_t size );
 void mock_event_function( XsensEventFlag_t event, XsensEventData_t *data );
-
+void mock_override_error_handler( xsens_packet_buffer_t *packet );
 
 void mock_output_function( uint8_t *buffer, uint16_t size )
 {
@@ -33,9 +34,16 @@ void mock_event_function( XsensEventFlag_t event, XsensEventData_t *data )
     printf("Notified of evt: %d\n", event);
 }
 
+void mock_override_error_handler( xsens_packet_buffer_t *packet )
+{
+    // Stub function - expect this to be called when a MT_ERROR is handled
+    mocked_fn_override_called += 1;
+}
+
 // SETUP, TEARDOWN
 void setUp(void)
 {
+    mocked_fn_override_called = 0;
     memset( &test_imu, 0, sizeof(test_imu) );
     test_imu.output_cb = &mock_output_function;
     test_imu.event_cb = &mock_event_function;
@@ -85,6 +93,39 @@ void test_parse_buffer( void )
     TEST_IGNORE();
 
 }
+
+void test_handler_override( void )
+{   
+    // Test that the internal function is called by default
+    uint8_t test_packet[] = {   0xFA, 
+                                0xFF, 
+                                0x42,   // Error packet type
+                                0x01,   // 1 byte payload
+                                0x21,   // parameter invalid/not in range
+                                0x9D };
+
+    // Setup the override
+    bool status = xsens_mti_override_id_handler( MT_ERROR, &mock_override_error_handler );
+    TEST_ASSERT_TRUE(status);
+
+    // Test that the new function is called
+    xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
+
+    TEST_ASSERT_EQUAL_INT( 1, mocked_fn_override_called );
+}
+
+void test_handler_override_with_null( void )
+{
+    bool status = xsens_mti_override_id_handler( MT_ERROR, NULL );
+    TEST_ASSERT_FALSE( status );
+}
+
+void test_handler_override_invalid( void )
+{
+    bool status = xsens_mti_override_id_handler( 0, &mock_override_error_handler );
+    TEST_ASSERT_FALSE( status );
+}
+
 
 /*
 // Quick function to calculate the correct CRC for a message

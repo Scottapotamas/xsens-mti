@@ -46,6 +46,10 @@ jobs:
               source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
           fqbn: ${{ matrix.fqbn }}
           libraries: "- source-path: ./"
+          verbose: true
+          cli-compile-flags: |
+            - --warnings 
+            - default
           sketch-paths: |
             - examples/basics
             - examples/write_config
