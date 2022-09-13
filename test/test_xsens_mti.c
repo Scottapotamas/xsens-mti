@@ -80,7 +80,7 @@ void test_parse_buffer( void )
                                 0x00, 
                                 0xD0 };
 
-    xsens_mti_parse_buffer( &test_imu, &test_packet, sizeof(test_packet));
+    xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
     
     TEST_IGNORE();
 

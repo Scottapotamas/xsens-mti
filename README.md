@@ -252,12 +252,14 @@ xsens_mti_send( interface, &packet );
 
 Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby/rake) based testing framework with `Unity` and `CMock`.
 
-1. Use the provided `setup_tests.sh` script to begin *if* you don't have Ceedling installed.
+1. *If* you don't have Ceedling installed:
 
-   - You might need to add execution permission first. Run `chmod +x setup_tests.sh`.
-   - Depending on your Ruby/Gem system configuration things may not work first try. Failing that, manually install `ceedling` with `gem install ceedling`.
+   - Either install it with your OS's package manager,
+   - Manual install `ceedling` with `gem install --user ceedling`.
 
 2. Once setup, run `ceedling` or `ceedling test:all`.
+
+GitHub Actions compile the Arduino examples and run unit-tests when pull-requests are made.
 
 ## Coverage Analysis
 

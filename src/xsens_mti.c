@@ -232,7 +232,7 @@ void xsens_mti_send( xsens_interface_t *interface, xsens_packet_buffer_t *packet
             // followed by two bytes of payload data
             buffer[buffer_pos++] = 0xFF;
 
-            memcpy( &buffer[buffer_pos], (uint8_t *)packet->length, 2 );
+            memcpy( &buffer[buffer_pos], &packet->length, 2 );
             buffer_pos += 2;
         }
 

@@ -19,19 +19,17 @@ xsens_interface_t imu_interface = XSENS_INTERFACE_RX_TX( &imu_callback, &imu_sen
 void setup( void )
 {
     Serial.begin( 115200 );
-    pinMode( LED_BUILTIN, OUTPUT );
 }
 
 void loop( void )
 {
-    // TODO: simple demo for IMU reset and settings change
-
     while( Serial.available() > 0 )  
     {  
         xsens_mti_parse( &imu_interface, Serial.read() );
     }
 
-    digitalWrite( LED_BUILTIN, (euler_pry[0] > 10.0f) );
+    // TODO: simple demo for IMU reset and settings change
+
 }
 
 

@@ -34,8 +34,8 @@ typedef struct
 
 // Macros to make interface object instantiation cleaner
 //   Needed because Arduino/C++ doesn't support out-of-order/incomplete 
-#define XSENS_INTERFACE_RX( CB_PTR ) { .state = 0, .packet = {0}, .payload_pos = 0, .crc = 0, .event_cb = CB_PTR, .output_cb = 0 }
-#define XSENS_INTERFACE_RX_TX( CB_PTR, OUTPUT_PTR ) { .state = 0, .packet = {0}, .payload_pos = 0, .crc = 0, .event_cb = CB_PTR, .output_cb = OUTPUT_PTR }
+#define XSENS_INTERFACE_RX( CB_PTR ) { .state = PARSER_PREAMBLE, .packet = {0}, .payload_pos = 0, .crc = 0, .event_cb = CB_PTR, .output_cb = 0 }
+#define XSENS_INTERFACE_RX_TX( CB_PTR, OUTPUT_PTR ) { .state = PARSER_PREAMBLE, .packet = {0}, .payload_pos = 0, .crc = 0, .event_cb = CB_PTR, .output_cb = OUTPUT_PTR }
 
 // Callback to internal (or userspace) handler function
 // Function is passed a successfully receieved packet for processing
@@ -45,7 +45,7 @@ typedef void ( *callback_payload_t )( xsens_packet_buffer_t * );
 typedef struct
 {
     uint8_t             id;
-    callback_payload_t *handler_fn;
+    callback_payload_t  handler_fn;
 } message_handler_ref_t;
 
 // Parse inbound bytes received from the MTi device
