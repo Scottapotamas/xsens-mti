@@ -1,8 +1,11 @@
-// This example uses 'Serial' which maps to hardware serial on an Uno
-// For other hardware targets, modify the serial usage as needed
+// This basic example uses 'Serial' which maps to hardware serial on an Uno.
+// For other hardware targets, modify the Serial usage as needed.
 
-#include "xsens_mti.h"      // main library
-#include "xsens_utility.h"  // needed for quaternion conversion function
+// Use MTManager to configure outputs: Quaternion, Acceleration, pressure, temperature.
+// Modify the baud-rate in this sketch to match the configured rate in MTManager.
+
+#include "xsens_mti.h"      // Main library
+#include "xsens_utility.h"  // Needed for quaternion conversion function
 
 // Cache a copy of IMU data
 float    temperature     = 0;       // in degress celcius
@@ -10,15 +13,12 @@ uint32_t pressure        = 0;       // in pascals
 float    euler_pry[3]    = { 0 };   // -180 to +180 degress
 float    acceleration[3] = { 0 };   // in m/s^2
 
-// Callback functions used by the library
+// Callback function used by the library
 void imu_callback( XsensEventFlag_t event, XsensEventData_t *mtdata );
-void imu_send_data( uint8_t *data, uint16_t length );
 
-// The library holds it's state and pointers to callbacks in this structure 
-xsens_interface_t imu_interface = { 
-    .event_cb = &imu_callback, 
-    .output_cb = &imu_send_data 
-};
+// The library holds state and pointers to callbacks in this structure
+//   - macro used to simplfiy instantiation, read write_config example for more 
+xsens_interface_t imu_interface = XSENS_INTERFACE_RX( &imu_callback );
 
 // Normal arduino setup/loop functions
 void setup( void )
@@ -42,14 +42,13 @@ void loop( void )
 
 
 // Called when the library decoded an inbound packet
-//
-// If the packet was an MData2 frame (which contains packed motion data)
-// the callback is called once for each sub-field
+//   - If the packet was an MData2 frame (which contains packed motion data)
+//   - the callback is called once for each sub-field
 void imu_callback( XsensEventFlag_t event, XsensEventData_t *mtdata )
 {
     // The library provides a pointer to the a union containing decoded data
-    // Use XsensEventFlag_t determine what kind of packet arrived, 
-    // then copy data from the union as needed
+    // Use XsensEventFlag_t to determine what kind of packet arrived, 
+    // then copy data from the union as needed.
 
     // union
     // {
@@ -104,10 +103,4 @@ void imu_callback( XsensEventFlag_t event, XsensEventData_t *mtdata )
             }
             break;
     }
-}
-
-// The library calls this function to send packets to the IMU
-void imu_send_data( uint8_t *data, uint16_t len )
-{
-    Serial.write( data, len );
 }

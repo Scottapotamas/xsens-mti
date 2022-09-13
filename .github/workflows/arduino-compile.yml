@@ -25,6 +25,7 @@ jobs:
         libraries: "- source-path: ./"
         sketch-paths: |
           - examples/basics
+          - examples/write_config
 
   build-esp32:
     runs-on: ubuntu-latest
@@ -47,3 +48,4 @@ jobs:
           libraries: "- source-path: ./"
           sketch-paths: |
             - examples/basics
+            - examples/write_config
