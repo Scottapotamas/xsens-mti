@@ -18,6 +18,8 @@ typedef struct
     uint8_t  payload[2048]; // xsens 'extended packets' can be up to 2kB
 } xsens_packet_buffer_t;
 
+#define XSENS_PACKET_BUF_EMPTY { .message_id = 0, .length = {0}, .payload = {0} }
+
 // Event flags sent to application-level code
 typedef enum
 {
