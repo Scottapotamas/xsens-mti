@@ -20,6 +20,11 @@ void imu_callback( XsensEventFlag_t event, XsensEventData_t *mtdata );
 //   - macro used to simplfiy instantiation, read write_config example for more 
 xsens_interface_t imu_interface = XSENS_INTERFACE_RX( &imu_callback );
 
+// Provide fallback LED pin if the selected board doesn't have one
+#ifndef LED_BUILTIN
+    #define LED_BUILTIN 13
+#endif
+
 // Normal arduino setup/loop functions
 void setup( void )
 {

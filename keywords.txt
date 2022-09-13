@@ -10,6 +10,9 @@ XsensEventFlag_t	KEYWORD1
 XsensEventDataType_t KEYWORD1
 XsensEventData_t	KEYWORD1
 
+XSENS_INTERFACE_RX	KEYWORD1
+XSENS_INTERFACE_RX_TX	KEYWORD1
+
 # Methods and Functions (KEYWORD2)
 
 xsens_mti_parse_buffer	KEYWORD2
