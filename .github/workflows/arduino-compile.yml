@@ -1,0 +1,52 @@
+name: Arduino Compile
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-arduino:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        fqbn:
+          - arduino:avr:mega:cpu=atmega2560 #avr
+          - arduino:samd:mzero_bl           #arm m0
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: arduino/report-size-deltas@v1
+    - uses: arduino/compile-sketches@v1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        enable-deltas-report: true
+        fqbn: ${{ matrix.fqbn }}
+        libraries: "- source-path: ./"
+        sketch-paths: |
+          - examples/basics
+
+  build-esp32:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        fqbn:
+          - esp32:esp32:esp32   # tensillica
+          - esp32:esp32:esp32c3 # riscv
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: arduino/compile-sketches@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          enable-deltas-report: true
+          platforms: |
+            - name: esp32:esp32
+              source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          fqbn: ${{ matrix.fqbn }}
+          libraries: "- source-path: ./"
+          sketch-paths: |
+            - examples/basics
