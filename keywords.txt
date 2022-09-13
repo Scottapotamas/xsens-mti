@@ -1,0 +1,30 @@
+# xsens_mti ArduinoIDE Colour Map
+
+# Datatypes (KEYWORD1)
+
+xsens_packet_buffer_t	KEYWORD1
+xsens_parser_state_t	KEYWORD1
+xsens_interface_t	KEYWORD1
+message_handler_ref_t	KEYWORD1
+XsensEventFlag_t	KEYWORD1
+XsensEventDataType_t KEYWORD1
+XsensEventData_t	KEYWORD1
+
+# Methods and Functions (KEYWORD2)
+
+xsens_mti_parse_buffer	KEYWORD2
+xsens_mti_parse	KEYWORD2
+xsens_mti_reset_parser	KEYWORD2
+xsens_mti_override_id_handler	KEYWORD2
+xsens_mti_send	KEYWORD2
+xsens_mti_request	KEYWORD2
+xsens_mti_set_baudrate	KEYWORD2
+xsens_mti_reset_orientation	KEYWORD2
+
+xsens_coalesce_16BE_16LE	KEYWORD2
+xsens_coalesce_32BE_32LE	KEYWORD2
+xsens_coalesce_32BE_F32LE	KEYWORD2
+xsens_quaternion_to_euler	KEYWORD2
+
+# Constants (LITERAL1)
+
