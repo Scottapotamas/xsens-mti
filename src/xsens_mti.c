@@ -181,11 +181,16 @@ message_handler_ref_t *xsens_mti_find_inbound_handler_entry( uint8_t find_id )
 {
     uint8_t table_length = sizeof( inbound_handler_table ) / sizeof( message_handler_ref_t );
 
-    for( uint8_t i = 0; i < table_length; i++ )
+    return xsens_mti_find_handler_entry(find_id, inbound_handler_table, table_length );
+}
+
+message_handler_ref_t *xsens_mti_find_handler_entry( uint8_t find_id, message_handler_ref_t *entry_table, uint8_t entry_count )
+{
+    for( uint8_t i = 0; i < entry_count; i++ )
     {
-        if( inbound_handler_table[i].id == find_id )
+        if( entry_table[i].id == find_id )
         {
-            return &inbound_handler_table[i];
+            return &entry_table[i];
         }
     }
 
