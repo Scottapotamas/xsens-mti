@@ -297,8 +297,31 @@ void xsens_mti_reset_orientation( xsens_interface_t *interface, XsensOrientation
     xsens_mti_send( interface, &packet );
 }
 
+void xsens_mti_set_configuration( xsens_interface_t *interface, XsensFrequencyConfig_t config[], uint8_t num_config )
+{
+    // No more than 32 values can be configured
+    if( interface && config && num_config && num_config <= 32 )
+    {
+        xsens_packet_buffer_t packet = { 0 };
+        packet.message_id = MT_SETOUTPUTCONFIGURATION;
 
+        // Form a big-endian MData2 style 'packet' for each field
+        //  2 bytes for ID
+        //  2 bytes for frequency
+        for( uint8_t i = 0; i <= num_config; i++ )
+        {
+            uint8_t buff_pos = i * 4;
+            
+            // LE to BE conversion directly into the output buffer...
+            xsens_swap_endian_u16(&packet.payload[buff_pos],   &config[i].id );
+            xsens_swap_endian_u16(&packet.payload[buff_pos+2], &config[i].frequency );
+            packet.length = buff_pos;
+        }
 
+        // TODO: refactor as a MDATA2 output problem once generation fns are implemented?
+        xsens_mti_send( interface, &packet );
+    }
+}
 
 
 

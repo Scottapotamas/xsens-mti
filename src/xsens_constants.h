@@ -160,6 +160,8 @@ enum XSENS_MESSAGE_ID_OUTBOUND
     MT_REQTRANSMITDELAY           = 0xDC,
     MT_SETTRANSMITDELAY           = 0xDC,
     MT_REQCONFIGURATION           = 0x0C,
+    MT_REQOUTPUTCONFIGURATION     = 0xC0,
+    MT_SETOUTPUTCONFIGURATION     = 0xC0,
     MT_REQSTRINGOUTPUTTYPE        = 0x8E,
     MT_SETSTRINGOUTPUTTYPE        = 0x8E,
     MT_REQPERIOD                  = 0x04,
@@ -296,6 +298,13 @@ enum XDA_TYPE_IDENTIFIER
 
 // Helper to modify identifier for precision and coordinate frame settings
 #define XSENS_IDENTIFIER_FORMAT( ID, PRECISION, COORDINATE_SYSTEM ) ( (ID) | ( (PRECISION) | (COORDINATE_SYSTEM) ) )
+
+typedef struct
+{
+    uint16_t id;
+    uint16_t frequency;
+} XsensFrequencyConfig_t;
+
 // 32-bit status structure
 //   Casting to bitfield is end-users responsibility.
 //      union XDI_STATUS32_UNION status;
