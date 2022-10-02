@@ -2,6 +2,20 @@
 #include "math.h"
 #include "stdlib.h"
 
+void xsens_swap_endian_u16( uint8_t *dest, uint8_t *source )
+{
+    dest[1] = source[0];
+    dest[0] = source[1];
+}
+
+void xsens_swap_endian_u32( uint8_t *dest, uint8_t *source )
+{
+    dest[3] = source[0];
+    dest[2] = source[1];
+    dest[1] = source[2];
+    dest[0] = source[3];
+}
+
 uint16_t xsens_coalesce_16BE_16LE( uint8_t *source )
 {
     return ( source[1] << 0 | source[0] << 8 );
