@@ -82,3 +82,23 @@ void test_rx_tx_macro( void )
 
     TEST_ASSERT_EQUAL_INT8_ARRAY( &if_rx_tx_macro, &if_ground_truth, sizeof(xsens_interface_t));
 }
+
+// From MT manual example, page 34
+void test_identifier_format_raw( void )
+{
+    // Quaternion ID 0x2010
+    //  Fp16.32 = 0x2
+    //  NED = 0x4
+    //  Fp16.32 and NED = 0x6
+    // Results in 0x2016
+
+    uint16_t result = XSENS_IDENTIFIER_FORMAT( 0x2010, 0x2, 0x4 );
+    TEST_ASSERT_EQUAL_HEX16( 0x2016, result );
+}
+
+void test_identifier_format_pretty( void )
+{
+    // Same as test_identifier_format_raw(), but uses enums
+    uint16_t result = XSENS_IDENTIFIER_FORMAT( XDI_QUATERNION, XSENS_FLOAT_FIXED1632, XSENS_COORD_NED );
+    TEST_ASSERT_EQUAL_HEX16( 0x2016, result );
+}

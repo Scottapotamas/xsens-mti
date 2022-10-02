@@ -232,6 +232,22 @@ typedef enum
     XSENS_ORIENTATION_ALIGNMENT_DEFAULT = 0x07,
 } XsensOrientationSetting_t;
 
+enum XSENS_COORDINATE_SYSTEM
+{
+    XSENS_COORD_ENU = 0x0,
+    XSENS_COORD_NED = 0x4,
+    XSENS_COORD_NWU = 0x8,
+};
+
+// TODO: consider enum cleanup, and supporting these in the callback union?
+enum XSENS_FLOAT_TYPE
+{
+    XSENS_FLOAT_SINGLE    = 0x0,
+    XSENS_FLOAT_FIXED1220 = 0x1,
+    XSENS_FLOAT_FIXED1632 = 0x2,
+    XSENS_FLOAT_DOUBLE    = 0x3,
+};
+
 // MData2 Field Identifiers
 enum XDA_TYPE_IDENTIFIER
 {
@@ -278,6 +294,8 @@ enum XDA_TYPE_IDENTIFIER
 
 };
 
+// Helper to modify identifier for precision and coordinate frame settings
+#define XSENS_IDENTIFIER_FORMAT( ID, PRECISION, COORDINATE_SYSTEM ) ( (ID) | ( (PRECISION) | (COORDINATE_SYSTEM) ) )
 // 32-bit status structure
 //   Casting to bitfield is end-users responsibility.
 //      union XDI_STATUS32_UNION status;
