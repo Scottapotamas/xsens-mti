@@ -238,3 +238,81 @@ void test_request_runselftest( void )
     xsens_mti_request( &test_imu, MT_RUNSELFTEST );
     TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
+
+
+// From MT manual example, page 66
+void test_set_configuration( void )
+{   
+    // PacketCounter    0x1020
+    // SampleTimeFine   0x1060
+    // Quaternion       0x2010 @ 100 Hz (0x0064)
+    // Acceleration     0x4020 @ 400 Hz (0x0190)
+    // Rate of Turn     0x8020 @ 400 Hz (0x0190)
+    // Magnetic Field   0xC020 @ 100 Hz (0x0064)
+    // Statusword       0xE020
+    // LatLon           0x5042 @ 100 Hz (0x0064)
+    // Altitude         0x5022 @ 100 Hz (0x0064)
+    // Velocity XYZ     0xD012 @ 100 Hz (0x0064)
+
+    // 0xFFFF and 0x0000 are both valid representations for 'max frequency'
+
+    uint8_t expected[] = {  0xFA,
+                            0xFF,
+                            0xC0,
+                            0x28,
+                            0x10, 0x20, 0xFF, 0xFF, 0x10, 0x60, 0xFF, 0xFF, 0x20, 0x10, 0x00, 0x64, 0x40, 0x20, 0x01, 0x90, 0x80, 0x20, 0x01, 0x90, 0xC0, 0x20, 0x00, 0x64, 0xE0, 0x20, 0xFF, 0xFF, 0x50, 0x42, 0x00, 0x64, 0x50, 0x22, 0x00, 0x64, 0xD0, 0x12, 0x00, 0x64,
+                            0x73 };
+
+    XsensFrequencyConfig_t settings[] = {
+        { .id = XDI_PACKET_COUNTER, .frequency = 0xFFFF },
+        { .id = XDI_SAMPLE_TIME_FINE, .frequency = 0xFFFF },
+        { .id = XDI_QUATERNION, .frequency = 100 },
+        { .id = XDI_ACCELERATION, .frequency = 400 },
+        { .id = XDI_RATE_OF_TURN, .frequency = 400 },
+        { .id = XDI_MAGNETIC_FIELD, .frequency = 100 },
+        { .id = XDI_STATUS_WORD, .frequency = 0xFFFF },
+        { .id = XSENS_IDENTIFIER_FORMAT(XDI_LAT_LON, XSENS_FLOAT_FIXED1632, XSENS_COORD_ENU), .frequency = 100 },
+        { .id = XSENS_IDENTIFIER_FORMAT(XDI_ALTITUDE_ELLIPSOID, XSENS_FLOAT_FIXED1632, XSENS_COORD_ENU), .frequency = 100 },
+        { .id = XSENS_IDENTIFIER_FORMAT(XDI_VELOCITY_XYZ, XSENS_FLOAT_FIXED1632, XSENS_COORD_ENU), .frequency = 100 },
+    };
+
+    xsens_mti_set_configuration( &test_imu, settings, 10 );
+
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
+}
+
+// Check configuration function doesn't generate outputs for stupid arguments
+void test_set_configuration_empty( void )
+{   
+    // Lie about count with the null-ptr
+    xsens_mti_set_configuration( &test_imu, NULL, 1 );
+
+    // No bytes output
+    TEST_ASSERT_EQUAL_INT( 0, outbound_cache_pos);
+
+    // Test valid pointer but invalid count
+    XsensFrequencyConfig_t settings[2] = { 0 };
+    xsens_mti_set_configuration( &test_imu, settings, 0 );
+    TEST_ASSERT_EQUAL_INT( 0, outbound_cache_pos);
+}
+
+void test_set_configuration_maximum( void )
+{   
+    // Generates packet with the maximum number of configuration fields
+    //  these are empty/null values, intended to test argument/count handling
+    XsensFrequencyConfig_t settings[32] = { 0 };
+    xsens_mti_set_configuration( &test_imu, settings, 32 );
+
+    uint8_t packet_overhead_bytes = 5;
+    uint8_t payload_bytes = 32 * 4; // 4-bytes per configured field
+
+    TEST_ASSERT_EQUAL_INT( packet_overhead_bytes+payload_bytes, outbound_cache_pos);
+}
+
+void test_set_configuration_too_many( void )
+{   
+    XsensFrequencyConfig_t settings[35] = { 0 };
+    xsens_mti_set_configuration( &test_imu, settings, 34 );
+
+    TEST_ASSERT_EQUAL_INT( 0, outbound_cache_pos);
+}
