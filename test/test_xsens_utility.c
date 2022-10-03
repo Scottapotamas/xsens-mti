@@ -29,19 +29,19 @@ void test_endian_swap_u16( void )
     uint16_t be     = 0xAAFF;
     uint16_t le     = 0xFFAA;
     uint16_t result = 0x0000;
-    xsens_swap_endian_u16( &result, &le );
+    xsens_swap_endian_u16( (uint8_t*)&result, (uint8_t*)&le );
     TEST_ASSERT_EQUAL_HEX16( be, result );
 
     be     = 0x4321;
     le     = 0x2143;
     result = 0x0000;
-    xsens_swap_endian_u16( &result, &le );
+    xsens_swap_endian_u16( (uint8_t*)&result, (uint8_t*)&le );
     TEST_ASSERT_EQUAL_HEX16( be, result );
 
     be     = 0x0000;
     le     = 0x0000;
     result = 0x0000;
-    xsens_swap_endian_u16( &result, &le );
+    xsens_swap_endian_u16( (uint8_t*)&result, (uint8_t*)&le );
     TEST_ASSERT_EQUAL_HEX16( be, result );
 }
 
@@ -50,13 +50,13 @@ void test_endian_swap_u32( void )
     uint32_t be     = 0xAABBCCDD;
     uint32_t le     = 0xDDCCBBAA;
     uint32_t result = 0x00000000;
-    xsens_swap_endian_u32( &result, &le );
+    xsens_swap_endian_u32( (uint8_t*)&result, (uint8_t*)&le );
     TEST_ASSERT_EQUAL_HEX32( be, result );
 
     be     = 0x00110000;
     le     = 0x00001100;
     result = 0x00000000;
-    xsens_swap_endian_u32( &result, &le );
+    xsens_swap_endian_u32( (uint8_t*)&result, (uint8_t*)&le );
     TEST_ASSERT_EQUAL_HEX32( be, result );
 }
 
