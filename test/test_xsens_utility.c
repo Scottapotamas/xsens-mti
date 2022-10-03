@@ -10,6 +10,12 @@
  
 // PRIVATE DATA
 
+// Test arrays for the array sizing macro
+uint8_t no_array[0]         =   {   };
+uint8_t small_array[1]      =   { 0 };
+uint8_t standard_array[40]  =   { 0 };
+uint8_t large_array[350]    =   { 0 };
+
 // PRIVATE FUNCTIONS
 
 
@@ -24,6 +30,15 @@ void tearDown(void)
 }
 
 // TESTS
+
+void test_array_element_count( void )
+{
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0,   XSENS_ARR_ELEM(no_array),         "Null array elements incorrectly counted." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1,   XSENS_ARR_ELEM(small_array),      "Small array elements incorrectly counted." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 40,  XSENS_ARR_ELEM(standard_array),   "Standard array elements incorrectly counted." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 350, XSENS_ARR_ELEM(large_array),      "Large array elements incorrectly counted." );
+}
+
 void test_endian_swap_u16( void )
 {   
     uint16_t be     = 0xAAFF;

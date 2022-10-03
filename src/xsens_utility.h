@@ -7,6 +7,9 @@ extern "C" {
 
 #include "stdint.h"
 
+// Helper for number of elements in array
+#define XSENS_ARR_ELEM(arr) (sizeof(arr) / sizeof(*arr)) // Failed to compile? Ensure the type is an array!   
+
 // Endianness conversion functions 
 void xsens_swap_endian_u16( uint8_t *dest, uint8_t *source );
 
