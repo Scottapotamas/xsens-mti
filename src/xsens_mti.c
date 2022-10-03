@@ -171,7 +171,7 @@ void xsens_mti_handle_payload( xsens_interface_t *interface )
     }
 }
 
-bool xsens_mti_override_id_handler( uint8_t id, callback_payload_t *user_fn )
+bool xsens_mti_override_id_handler( uint8_t id, callback_payload_t user_fn )
 {
     if( user_fn )
     {
