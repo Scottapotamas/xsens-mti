@@ -113,83 +113,132 @@ enum XSENS_ERRORCODE
 // Message Identifiers for MTi->HOST
 enum XSENS_MESSAGE_ID_INBOUND
 {
+    // Wakeup and State
     MT_WAKEUP               = 0x3E,
-    MT_GOTOCONFIGACK        = 0x31,
-    MT_GOTOMEASUREMENTACK   = 0x11,
-    MT_RESETACK             = 0x41,
+    MT_ACK_GOTOCONFIG       = 0x31,
+    MT_ACK_GOTOMEASUREMENT  = 0x11,
+    MT_ACK_RESET            = 0x41,
+
+    // Informational Messages
     MT_DEVICEID             = 0x01,
     MT_PRODUCTCODE          = 0x1D,
     MT_HARDWAREVERSION      = 0x1F,
     MT_FIRMWAREREV          = 0x13,
-    MT_SELFTESTRESULTS      = 0x25,
     MT_ERROR                = 0x42,
-    MT_WARNING              = 0x43,
-    MT_CONFIGURATION        = 0x0D,
+
+    // Device Specific Messages
+    MT_ACK_BAUDRATE         = 0x19,
+    MT_ACK_SELFTEST         = 0x25,
+    MT_ACK_GNSSPLATFORM     = 0x77,
+    MT_ACK_ERRORMODE        = 0xDB,     // DEPRECATED by xsens 2020.A
+    MT_ACK_TRANSMITDELAY    = 0xDD,
+    MT_ACK_OPTIONFLAGS      = 0x49,
+    MT_ACK_LOCATIONID       = 0x85,
+    
+    // Synchronisation Messages
+    MT_ACK_SYNCSETTINGS     = 0x2D,
+    
+    // Configuration Messages
+    MT_CONFIGURATION           = 0x0D,
+    MT_ACK_PERIOD              = 0x05,
+    MT_ACK_EXTOUTPUTMODE       = 0x87,
+    MT_ACK_OUTPUTCONFIGURATION = 0xC1,
+    MT_ACK_STRINGOUTPUTTYPES   = 0x8F,
+    MT_ACK_OUTPUTMODE          = 0xD1,  // DEPRECATED by xsens rev w
+    MT_ACK_OUTPUTSETTINGS      = 0xD3,  // DEPRECATED by xsens rev w
+
+    // Data Messages
+    MT_MTDATA               = 0x32,
     MT_MTDATA2              = 0x36,
-    MT_REQLATLONALTACK      = 0x6F,
-    MT_SETLATLONALTACK      = 0x6F,
-    MT_REQFILTERPROFILEACK  = 0x65,
-    MT_REQGNSSPLATFORMACK   = 0x77,
-    MT_REQGNSSLEVERARMACK   = 0x69,
-    MT_SETGNSSLEVERARMACK   = 0x69,
+    MT_ACK_RESETORIENTATION = 0xA5,
     MT_UTCTIME              = 0x61,
-    MT_ICCCOMMANDACK        = 0x75,
-    MT_SETINITIALHEADINGACK = 0xD7,
-    MT_FORWARDGNSSDATAACK   = 0xE3,
+    MT_ACK_AVAILABLEFILTERPROFILES = 0x63,
+    MT_ACK_FILTERPROFILE    = 0x65,
+    MT_ACK_GNSSLEVERARM     = 0x69,
+    MT_ACK_LATLONALT        = 0x6F,
+    MT_ACK_NOROTATION       = 0x23,
+    MT_ACK_ICCCOMMAND       = 0x75,
+
+    // Not in xsens manual summary tables
+    MT_WARNING              = 0x43,
+    MT_ACK_INITIALHEADING   = 0xD7,
+    MT_ACK_FORWARDGNSSDATA  = 0xE3,
 };
 
 // Message Identifiers for Host->MTi
 enum XSENS_MESSAGE_ID_OUTBOUND
 {
-    MT_WAKEUPACK                  = 0x3F,
+    // Wakeup and State
+    MT_ACK_WAKEUP                 = 0x3F,
     MT_GOTOCONFIG                 = 0x30,
     MT_GOTOMEASUREMENT            = 0x10,
     MT_RESET                      = 0x40,
+
+    // Informational Messages
     MT_REQDID                     = 0x00,
     MT_REQPRODUCTCODE             = 0x1C,
     MT_REQHARDWAREVERSION         = 0x1E,
     MT_REQFWREV                   = 0x12,
-    MT_RUNSELFTEST                = 0x24,
+
+    // Device Specific Messages
+    MT_RESTOREFACTORYDEF          = 0x0E,
     MT_REQBAUDRATE                = 0x18,
     MT_SETBAUDRATE                = 0x18,
+    MT_RUNSELFTEST                = 0x24,
+    MT_REQGNSSPLATFORM            = 0x76,
+    MT_SETGNSSPLATFORM            = 0x76,
+    MT_REQERRORMODE               = 0xDA,
+    MT_SETERRORMODE               = 0xDA,
+    MT_REQTRANSMITDELAY           = 0xDC,
+    MT_SETTRANSMITDELAY           = 0xDC,
     MT_REQOPTIONFLAGS             = 0x48,
     MT_SETOPTIONFLAGS             = 0x48,
     MT_REQLOCATIONID              = 0x84,
     MT_SETLOCATIONID              = 0x84,
-    MT_RESTOREFACTORYDEF          = 0x0E,
-    MT_REQTRANSMITDELAY           = 0xDC,
-    MT_SETTRANSMITDELAY           = 0xDC,
+
+    // Synchronisation Messages
+    MT_REQSYNCSETTINGS            = 0x2C,
+    MT_SETSYNCSETTINGS            = 0x2C,
+
+    // Configuration Messages
     MT_REQCONFIGURATION           = 0x0C,
-    MT_REQOUTPUTCONFIGURATION     = 0xC0,
-    MT_SETOUTPUTCONFIGURATION     = 0xC0,
-    MT_REQSTRINGOUTPUTTYPE        = 0x8E,
-    MT_SETSTRINGOUTPUTTYPE        = 0x8E,
     MT_REQPERIOD                  = 0x04,
     MT_SETPERIOD                  = 0x04,
-    MT_REQOUTPUTSKIPFACTOR        = 0xD4,
-    MT_SETOUTPUTSKIPFACTOR        = 0xD4,
-    MT_REQALIGNMENTROTATION       = 0xEC,
-    MT_SETALIGNMENTROTATION       = 0xEC,
     MT_REQEXTOUTPUTMODE           = 0x86,
     MT_SETEXTOUTPUTMODE           = 0x86,
-    MT_REQSETPORTCONFIG           = 0x8C,
-    MT_REQSETCANOUTPUTCONFIG      = 0xE8,
-    MT_REQSETCANCONFIG            = 0xE6,
+    MT_REQOUTPUTCONFIGURATION     = 0xC0,
+    MT_SETOUTPUTCONFIGURATION     = 0xC0,
+    MT_REQSTRINGOUTPUTTYPES       = 0x8E,
+    MT_SETSTRINGOUTPUTTYPES       = 0x8E,
+    MT_REQALIGNMENTROTATION       = 0xEC,
+    MT_SETALIGNMENTROTATION       = 0xEC,
+    MT_REQOUTPUTMODE              = 0xD0,   // DEPRECATED by xsens rev w
+    MT_SETOUTPUTMODE              = 0xD0,   // DEPRECATED by xsens rev w
+    MT_REQOUTPUTSETTINGS          = 0xD2,   // DEPRECATED by xsens rev w
+    MT_SETOUTPUTSETTINGS          = 0xD2,   // DEPRECATED by xsens rev w
+
+    // Data Messages
     MT_REQDATA                    = 0x34,
-    MT_REQLATLONALT               = 0x6E,
-    MT_SETLATLONALT               = 0x6E,
-    MT_REQAVAILABLEFILTERPROFILES = 0x62,
-    MT_REQFILTERPROFILE           = 0x64,
-    MT_SETFILTERPROFILE           = 0x64,
-    MT_REQGNSSPLATFORM            = 0x76,
-    MT_SETGNSSPLATFORM            = 0x76,
-    MT_SETGNSSLEVERARM            = 0x68,
     MT_RESETORIENTATION           = 0xA4,
-    MT_SETNOROTATION              = 0x22,
     MT_REQUTCTIME                 = 0x60,
     MT_SETUTCTIME                 = 0x60,
     MT_ADJUSTUTCTIME              = 0xA8,
+    MT_REQAVAILABLEFILTERPROFILES = 0x62,
+    MT_REQFILTERPROFILE           = 0x64,
+    MT_SETFILTERPROFILE           = 0x64,
+    MT_REQGNSSLEVERARM            = 0x68,
+    MT_SETGNSSLEVERARM            = 0x68,
+    MT_REQLATLONALT               = 0x6E,
+    MT_SETLATLONALT               = 0x6E,
+    MT_SETNOROTATION              = 0x22,
     MT_ICCCOMMAND                 = 0x74,
+
+    // Not in xsens manual summary tables
+    MT_REQOUTPUTSKIPFACTOR        = 0xD4,
+    MT_SETOUTPUTSKIPFACTOR        = 0xD4,
+    MT_REQSETPORTCONFIG           = 0x8C,
+    MT_REQSETCANOUTPUTCONFIG      = 0xE8,
+    MT_REQSETCANCONFIG            = 0xE6,
     MT_SETINITIALHEADING          = 0xD6,
     MT_FORWARDGNSSDATA            = 0xE2,
 };
