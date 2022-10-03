@@ -281,6 +281,49 @@ void test_set_configuration( void )
     TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
+// From sniffed flow with MTi-300 and MTManager software
+void test_set_configuration_2( void )
+{
+    // PacketCounter, Freq: 65535, 
+    // SampleTimeFine, Freq: 65535, 
+    // Quaternion|Float|ENU, Freq: 400, 
+    // Acceleration|Float, Freq: 400, 
+    // DeltaV|Float, Freq: 400, 
+    // FreeAcceleration|Float, Freq: 400, 
+    // RateOfTurn|Float, Freq: 400, 
+    // DeltaQ|Float, Freq: 400, 
+    // MagneticField|Float, Freq: 100, 
+    // Temperature|Float, Freq: 10, 
+    // BaroPressure, Freq: 50, 
+    // StatusWord, Freq: 65535
+
+    uint8_t expected[] = {  0xFA,
+                            0xFF,
+                            0xC0,
+                            0x30,
+                            0x10, 0x20, 0xFF, 0xFF, 0x10, 0x60, 0xFF, 0xFF, 0x20, 0x10, 0x01, 0x90, 0x40, 0x20, 0x01, 0x90, 0x40, 0x10, 0x01, 0x90, 0x40, 0x30, 0x01, 0x90, 0x80, 0x20, 0x01, 0x90, 0x80, 0x30, 0x01, 0x90, 0xC0, 0x20, 0x00, 0x64, 0x08, 0x10, 0x00, 0x0A, 0x30, 0x10, 0x00, 0x32, 0xE0, 0x20, 0xFF, 0xFF,
+                            0x99 };
+
+    XsensFrequencyConfig_t settings[] = {
+        { .id = XDI_PACKET_COUNTER, .frequency = 0xFFFF },
+        { .id = XDI_SAMPLE_TIME_FINE, .frequency = 0xFFFF },
+        { .id = XSENS_IDENTIFIER_FORMAT(XDI_QUATERNION, XSENS_FLOAT_SINGLE, XSENS_COORD_ENU), .frequency = 400 },
+        { .id = XDI_ACCELERATION, .frequency = 400 },
+        { .id = XDI_DELTA_V, .frequency = 400 },
+        { .id = XDI_FREE_ACCELERATION, .frequency = 400 },
+        { .id = XDI_RATE_OF_TURN, .frequency = 400 },
+        { .id = XDI_DELTA_Q, .frequency = 400 },
+        { .id = XDI_MAGNETIC_FIELD, .frequency = 100 },
+        { .id = XDI_TEMPERATURE, .frequency = 10 },
+        { .id = XDI_BARO_PRESSURE, .frequency = 50 },
+        { .id = XDI_STATUS_WORD, .frequency = 0xFFFF },
+    };
+
+    xsens_mti_set_configuration( &test_imu, settings, XSENS_ARR_ELEM(settings) );
+
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
+}
+
 // Check configuration function doesn't generate outputs for stupid arguments
 void test_set_configuration_empty( void )
 {   
