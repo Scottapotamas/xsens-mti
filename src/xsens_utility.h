@@ -27,6 +27,23 @@ void xsens_quaternion_to_euler( float *quaternion, float *euler );
 // Convert roll/pitch/yaw euler angles (in radians) to quaternion
 void xsens_euler_to_quaternion( float *euler, float *quaternion );
 
+// Convert float32 to fixed-point 12.20
+// 	12-bit integer with 20-bit fractional part
+// 	Expresses values across range [-2048.0 to 2047.9999990]
+//  Refer https://base.xsens.com/s/article/An-explanation-of-the-MTi-fixed-point-output-formats-1605869706093
+int32_t xsens_f32_to_fp1220( float value );
+
+// Convert fixed-point 12.20 to float32
+float xsens_fp1220_to_f32( int32_t value );
+
+// Convert float32 to fixed-point 16.32
+// 	16-bit integer with 32-bit fractional part
+// 	Expresses values across range [-32768.0 to 32767.9999999998]
+int64_t xsens_f64_to_fp1632( double value );
+
+// Convert fixed-point 16.32 to float64
+double xsens_fp1632_to_f64( int64_t value );
+
 #ifdef __cplusplus
 }
 #endif
