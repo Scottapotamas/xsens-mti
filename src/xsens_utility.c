@@ -89,3 +89,23 @@ void xsens_euler_to_quaternion( float *euler, float *quaternion )
     quaternion[2] = cr * sp * cy + sr * cp * sy;
     quaternion[3] = cr * cp * sy - sr * sp * cy;
 }
+
+int32_t xsens_f32_to_fp1220( float value )
+{
+    return round(value * (2UL<<20-1));
+}
+
+float xsens_fp1220_to_f32( int32_t value )
+{
+    return (float)value / (2UL<<20-1);
+}
+
+int64_t xsens_f64_to_fp1632( double value )
+{
+    return value * (2ULL<<32-1);
+}
+
+double xsens_fp1632_to_f64( int64_t value )
+{
+    return (double)value / (2ULL<<32-1);
+}

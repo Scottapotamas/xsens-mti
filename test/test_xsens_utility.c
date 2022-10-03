@@ -158,3 +158,72 @@ void test_euler_quaternion_2( void )
     xsens_euler_to_quaternion( &euler, &result_quat );
     TEST_ASSERT_EQUAL_FLOAT_ARRAY( expected_quat, result_quat, 4);
 }
+
+
+void test_into_fp1220( void )
+{
+    int32_t expected = 0x00324396; // 0x003 integer, 0x24396 fractional
+    
+    float value = 3.1415f;
+    int32_t result = xsens_f32_to_fp1220( value );
+
+    TEST_ASSERT_EQUAL_INT32( expected, result );
+}
+
+// TODO: check fp1220 transmits with byte order as mentioned in xsens doc
+//       {0x00, 0x32, 0x43, 0x96} 
+
+void test_into_fp1220_negative( void )
+{
+    int32_t expected = 0xFFCDBC6A; // Converted for negative -3 integer, 0x24396 as above
+    
+    float value = -3.1415f;
+    int32_t result = xsens_f32_to_fp1220( value );
+
+    TEST_ASSERT_EQUAL_INT32( expected, result );
+}
+
+void test_from_fp1220( void )
+{
+    float expected = 3.1415f;
+
+    uint32_t value = 0x00324396; // 0x003 integer, 0x24396 fractional
+    float result = xsens_fp1220_to_f32( value );
+
+    TEST_ASSERT_EQUAL_FLOAT( expected, result );
+}
+
+void test_into_fp1632( void )
+{
+    int64_t expected = 0x000324395810; // 0x0003 integer, 0x24395810 fractional
+    
+    double value = 3.1415;
+    int64_t result = xsens_f64_to_fp1632( value );
+
+    TEST_ASSERT_EQUAL_INT64( expected, result );
+}
+
+// TODO: check fp1632 transmits with byte order as mentioned in xsens doc
+//       {0x24, 0x39, 0x58, 0x10, 0x00, 0x03} 
+
+void test_into_fp1632_negative( void )
+{
+    // Value is one-bit higher than 0x24395810 example
+    int64_t expected = 0xFFFFFFFCDBC6A7F0; // Negative/signed equiv from 0x00032439580F
+    
+    double value = -3.1415;
+    int64_t result = xsens_f64_to_fp1632( value );
+
+    TEST_ASSERT_EQUAL_HEX64( expected, result );
+}
+
+void test_from_fp1632( void )
+{
+    double expected = 3.14150000014342;
+
+    int64_t value = 0x000324395811; // 0x0003 integer, 0x24395811 fractional
+    double result = xsens_fp1632_to_f64( value );
+
+    // This particular test has an error slightly under 15x DBL_EPSILON
+    TEST_ASSERT_DOUBLE_WITHIN( 0.0000000000000040, expected, result );
+}
