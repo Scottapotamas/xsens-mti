@@ -70,3 +70,22 @@ void xsens_quaternion_to_euler( float *quaternion, float *euler )
     float cosy_cosp = 1 - 2 * ( y * y + z * z );
     euler[2]        = (float)atan2( siny_cosp, cosy_cosp );
 }
+
+void xsens_euler_to_quaternion( float *euler, float *quaternion )
+{
+    float roll  = euler[0];
+    float pitch = euler[1];
+    float yaw   = euler[2];
+
+    float cy = cos( yaw * 0.5f );
+    float sy = sin( yaw   * 0.5f );
+    float cp = cos( pitch * 0.5f );
+    float sp = sin( pitch * 0.5f );
+    float cr = cos( roll  * 0.5f );
+    float sr = sin( roll  * 0.5f );
+
+    quaternion[0] = cr * cp * cy + sr * sp * sy;
+    quaternion[1] = sr * cp * cy - cr * sp * sy;
+    quaternion[2] = cr * sp * cy + sr * cp * sy;
+    quaternion[3] = cr * cp * sy - sr * sp * cy;
+}

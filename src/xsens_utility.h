@@ -24,6 +24,9 @@ float xsens_coalesce_32BE_F32LE( uint8_t *source );
 // Convert quaternion to roll/pitch/yaw angles (in radians)
 void xsens_quaternion_to_euler( float *quaternion, float *euler );
 
+// Convert roll/pitch/yaw euler angles (in radians) to quaternion
+void xsens_euler_to_quaternion( float *euler, float *quaternion );
+
 #ifdef __cplusplus
 }
 #endif
