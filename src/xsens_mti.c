@@ -313,8 +313,8 @@ void xsens_mti_set_configuration( xsens_interface_t *interface, XsensFrequencyCo
             uint8_t buff_pos = i * 4;
             
             // LE to BE conversion directly into the output buffer...
-            xsens_swap_endian_u16(&packet.payload[buff_pos],   &config[i].id );
-            xsens_swap_endian_u16(&packet.payload[buff_pos+2], &config[i].frequency );
+            xsens_swap_endian_u16( &packet.payload[buff_pos],   (uint8_t*)&config[i].id );
+            xsens_swap_endian_u16( &packet.payload[buff_pos+2], (uint8_t*)&config[i].frequency );
             packet.length = buff_pos;
         }
 
