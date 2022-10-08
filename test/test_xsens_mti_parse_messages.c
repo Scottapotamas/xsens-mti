@@ -459,3 +459,63 @@ void test_parse_mdata2_full( void )
     TEST_ASSERT_TRUE( status.bitfield.sync_out_mark );    
 
 }
+
+void test_parse_mdata2_number_formats( void )
+{
+    // Tests a packet where fixed-point 12.20, 16.32, and double formatted outputs are used
+
+    // (PacketCounter, 2 bytes, 15325),
+    // (EulerAngles|Fp1220|ENU, 12 bytes,
+    // (Roll: -0.9826155, Pitch: -0.1385441, Yaw: 115.7006302)),
+    // (DeltaQ|Fp1632, 24 bytes,
+    // q0: 1.000000000233, q1: -0.000429107808, q2: -0.000302935718, q3: -0.000177090988)),
+    // (MagneticField|Double, 24 bytes,
+    // (magX: 0.833747744560242, magY: -0.434182971715927, magZ: 1.617681622505188)),
+    // (Temperature|Float, 4 bytes, Temp:  27.4375000),
+
+    uint8_t test_packet[] = {   0xFA, 
+                                0xFF, 
+                                0x36, 
+                                0x51, 
+                                0x10, 0x20, 0x02, 0x3B, 0xDD, 0x20, 0x31, 0x0C, 0xFF, 0xF0, 0x47, 0x35, 0xFF, 0xFD, 0xC8, 0x86, 0x07, 0x3B, 0x35, 0xC8, 0x80, 0x32, 0x18, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0xFF, 0xE3, 0xE0, 0xC4, 0xFF, 0xFF, 0xFF, 0xEC, 0x25, 0x95, 0xFF, 0xFF, 0xFF, 0xF4, 0x64, 0xE8, 0xFF, 0xFF, 0xC0, 0x23, 0x18, 0x3F, 0xEA, 0xAE, 0x0F, 0xC0, 0x00, 0x00, 0x00, 0xBF, 0xDB, 0xC9, 0xA7, 0x60, 0x00, 0x00, 0x00, 0x3F, 0xF9, 0xE2, 0x06, 0x20, 0x00, 0x00, 0x00, 0x08, 0x10, 0x04, 0x41, 0xDB, 0x80, 0x00,
+                                0xAC };
+    
+    xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
+
+    // TODO: mdata2 parser needs to support other typed MID's.
+    printf("cache_usage: %i\n",cache_usage);
+
+    for(uint8_t i = 0; i <= cache_usage; i++)
+    {
+        printf(" - evt flg: %i\n",cb_evt_flag_cache[i]);
+
+    }
+
+    // PacketCounter
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_PACKET_COUNT, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U16, cb_evt_data_cache[0].type );
+    TEST_ASSERT_EQUAL_INT( 15325, cb_evt_data_cache[0].data.u2);
+  
+    // EulerAngles
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_EULER, cb_evt_flag_cache[1] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[1].type );
+    float golden_pry[3] = { -0.9826155, -0.1385441, 115.7006302 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_pry, cb_evt_data_cache[1].data.f4x3, 3);
+
+    // DeltaQ
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_DELTA_Q, cb_evt_flag_cache[7] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[7].type );
+    float golden_dq[4] = { 1.000000000233, -0.000429107808, -0.000302935718, -0.000177090988 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_dq, cb_evt_data_cache[1].data.f4x4, 4);
+
+    // MagneticField
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_MAGNETIC, cb_evt_flag_cache[3] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[3].type );
+    double golden_mag[3] = { 0.833747744560242, -0.434182971715927, 1.617681622505188 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_mag, cb_evt_data_cache[3].data.f4x3, 3);
+
+    // Temperature
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TEMPERATURE, cb_evt_flag_cache[4] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT, cb_evt_data_cache[4].type );
+    TEST_ASSERT_EQUAL_FLOAT( 27.4375000, cb_evt_data_cache[4].data.f4);
+}
