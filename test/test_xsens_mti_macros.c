@@ -102,3 +102,33 @@ void test_identifier_format_pretty( void )
     uint16_t result = XSENS_IDENTIFIER_FORMAT( XDI_QUATERNION, XSENS_FLOAT_FIXED1632, XSENS_COORD_NED );
     TEST_ASSERT_EQUAL_HEX16( 0x2016, result );
 }
+
+void test_identifier_format_get_precision( void )
+{
+    // (Quaternion,Float,ENU)
+    TEST_ASSERT_EQUAL_HEX8( XSENS_FLOAT_SINGLE, XSENS_IDENTIFIER_FORMAT_GET_PRECISION( 0x2010 ) );
+
+    // (Magnetic Field,Fp1220,ENU)
+    TEST_ASSERT_EQUAL_HEX8( XSENS_FLOAT_FIXED1220, XSENS_IDENTIFIER_FORMAT_GET_PRECISION( 0xC021 ) );
+
+    // Based on test_identifier_format_raw() value (Quaternion,Fp1632,NED)
+    TEST_ASSERT_EQUAL_HEX8( XSENS_FLOAT_FIXED1632, XSENS_IDENTIFIER_FORMAT_GET_PRECISION( 0x2016 ) );
+    
+    // (Temperature,Fp1632)
+    TEST_ASSERT_EQUAL_HEX8( XSENS_FLOAT_FIXED1632, XSENS_IDENTIFIER_FORMAT_GET_PRECISION( 0x0812 ) );
+
+    // (Barometric Pressure,Double)
+    TEST_ASSERT_EQUAL_HEX8( XSENS_FLOAT_DOUBLE, XSENS_IDENTIFIER_FORMAT_GET_PRECISION( 0x3013 ) );
+}
+
+void test_identifier_format_get_coordinate_system( void )
+{
+    // (Quaternion,Float,ENU)
+    TEST_ASSERT_EQUAL_HEX8( XSENS_COORD_ENU, XSENS_IDENTIFIER_FORMAT_GET_COORD_SYSTEM( 0x2010 ) );
+
+    // Based on test_identifier_format_raw() value (Quaternion,Fp1632,NED)
+    TEST_ASSERT_EQUAL_HEX8( XSENS_COORD_NED, XSENS_IDENTIFIER_FORMAT_GET_COORD_SYSTEM( 0x2016 ) );
+
+    // (Quaternion,Float,NWU)
+    TEST_ASSERT_EQUAL_HEX8( XSENS_COORD_NWU, XSENS_IDENTIFIER_FORMAT_GET_COORD_SYSTEM( 0x201A ) );
+}
