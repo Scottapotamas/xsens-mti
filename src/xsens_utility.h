@@ -15,6 +15,8 @@ void xsens_swap_endian_u16( uint8_t *dest, uint8_t *source );
 
 void xsens_swap_endian_u32( uint8_t *dest, uint8_t *source );
 
+void xsens_swap_endian_u64( uint8_t *dest, uint8_t *source );
+
 // Read 2 big-endian bytes and return a little-endian uint16
 uint16_t xsens_coalesce_16BE_16LE( uint8_t *source );
 
