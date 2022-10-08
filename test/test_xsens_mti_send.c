@@ -324,6 +324,40 @@ void test_set_configuration_2( void )
     TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
+// From sniffed flow with MTi-300 and MTManager software
+void test_set_configuration_3( void )
+{
+
+    // PacketCounter, Freq: 65535, 
+    // SampleTimeFine, Freq: 65535, 
+    // Quaternion|Float|ENU, Freq: 200, 
+    // RateOfTurn|1220, Freq: 100, 
+    // MagneticField|1632, Freq: 100, 
+    // Temperature|Float, Freq: 1, 
+    // BaroPressure|float, Freq: 2, 
+
+    uint8_t expected[] = {  0xFA,
+                            0xFF,
+                            0xC0,
+                            0x1C,
+                            0x10, 0x20, 0xFF, 0xFF, 0x20, 0x10, 0x00, 0xC8, 0x80, 0x21, 0x00, 0x64, 0xC0, 0x22, 0x00, 0x64, 0x08, 0x10, 0x00, 0x01, 0x30, 0x10, 0x00, 0x02, 0xE0, 0x20, 0xFF, 0xFF, 
+                            0x5B };
+
+    XsensFrequencyConfig_t settings[] = {
+        { .id = XDI_PACKET_COUNTER, .frequency = 0xFFFF },
+        { .id = XSENS_IDENTIFIER_FORMAT(XDI_QUATERNION, XSENS_FLOAT_SINGLE, XSENS_COORD_ENU), .frequency = 200 },
+        { .id = XSENS_IDENTIFIER_FORMAT(XDI_RATE_OF_TURN, XSENS_FLOAT_FIXED1220, XSENS_COORD_ENU), .frequency = 100 },
+        { .id = XSENS_IDENTIFIER_FORMAT(XDI_MAGNETIC_FIELD, XSENS_FLOAT_FIXED1632, XSENS_COORD_ENU), .frequency = 100 },
+        { .id = XDI_TEMPERATURE, .frequency = 1 },
+        { .id = XDI_BARO_PRESSURE, .frequency = 2 },
+        { .id = XDI_STATUS_WORD, .frequency = 0xFFFF },
+    };
+
+    xsens_mti_set_configuration( &test_imu, settings, XSENS_ARR_ELEM(settings) );
+
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
+}
+
 // Check configuration function doesn't generate outputs for stupid arguments
 void test_set_configuration_empty( void )
 {   
