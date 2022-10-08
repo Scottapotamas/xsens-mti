@@ -347,6 +347,7 @@ enum XDA_TYPE_IDENTIFIER
 
 // Helper to modify identifier for precision and coordinate frame settings
 #define XSENS_IDENTIFIER_FORMAT( ID, PRECISION, COORDINATE_SYSTEM ) ( (ID) | ( (PRECISION) | (COORDINATE_SYSTEM) ) )
+#define XSENS_IDENTIFIER_FORMAT_SIMPLIFY( ID ) ( (ID) & 0xFFF0 )
 #define XSENS_IDENTIFIER_FORMAT_GET_PRECISION( ID ) ( (ID) & 0x0003 )
 #define XSENS_IDENTIFIER_FORMAT_GET_COORD_SYSTEM( ID ) ( (ID) & 0x000C )
 
