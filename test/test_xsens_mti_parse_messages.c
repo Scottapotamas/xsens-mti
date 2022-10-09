@@ -482,15 +482,6 @@ void test_parse_mdata2_number_formats( void )
     
     xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
 
-    // TODO: mdata2 parser needs to support other typed MID's.
-    printf("cache_usage: %i\n",cache_usage);
-
-    for(uint8_t i = 0; i <= cache_usage; i++)
-    {
-        printf(" - evt flg: %i\n",cb_evt_flag_cache[i]);
-
-    }
-
     // PacketCounter
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_PACKET_COUNT, cb_evt_flag_cache[0] );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U16, cb_evt_data_cache[0].type );
@@ -498,9 +489,16 @@ void test_parse_mdata2_number_formats( void )
   
     // EulerAngles
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_EULER, cb_evt_flag_cache[1] );
-    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[1].type );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_1220FP3, cb_evt_data_cache[1].type );
     float golden_pry[3] = { -0.9826155, -0.1385441, 115.7006302 };
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_pry, cb_evt_data_cache[1].data.f4x3, 3);
+
+    // Convert the fixed-point 1220 roll/pitch/yaw array into floats
+    float result_pry[3] = { 0 };
+    result_pry[0] = xsens_fp1220_to_f32( cb_evt_data_cache[1].data.fp1220x3[0] );
+    result_pry[1] = xsens_fp1220_to_f32( cb_evt_data_cache[1].data.fp1220x3[1] );
+    result_pry[2] = xsens_fp1220_to_f32( cb_evt_data_cache[1].data.fp1220x3[2] );
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_pry, result_pry, 3);
+
 
     // DeltaQ
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_DELTA_Q, cb_evt_flag_cache[7] );
@@ -510,9 +508,9 @@ void test_parse_mdata2_number_formats( void )
 
     // MagneticField
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_MAGNETIC, cb_evt_flag_cache[3] );
-    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT3, cb_evt_data_cache[3].type );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_DOUBLE3, cb_evt_data_cache[3].type );
     double golden_mag[3] = { 0.833747744560242, -0.434182971715927, 1.617681622505188 };
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_mag, cb_evt_data_cache[3].data.f4x3, 3);
+    TEST_ASSERT_EQUAL_DOUBLE_ARRAY( golden_mag, cb_evt_data_cache[3].data.f4x3, 3);
 
     // Temperature
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TEMPERATURE, cb_evt_flag_cache[4] );
