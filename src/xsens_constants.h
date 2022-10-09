@@ -60,11 +60,26 @@ typedef enum
     XSENS_EVT_TYPE_U8,
     XSENS_EVT_TYPE_U16,
     XSENS_EVT_TYPE_U32,
-    XSENS_EVT_TYPE_FLOAT,
+    XSENS_EVT_TYPE_FLOAT = 10,
     XSENS_EVT_TYPE_FLOAT2,
     XSENS_EVT_TYPE_FLOAT3,
     XSENS_EVT_TYPE_FLOAT4,
     XSENS_EVT_TYPE_FLOAT9,
+    XSENS_EVT_TYPE_1220FP = 20,
+    XSENS_EVT_TYPE_1220FP2,
+    XSENS_EVT_TYPE_1220FP3,
+    XSENS_EVT_TYPE_1220FP4,
+    XSENS_EVT_TYPE_1220FP9,
+    XSENS_EVT_TYPE_1632FP = 30,
+    XSENS_EVT_TYPE_1632FP2,
+    XSENS_EVT_TYPE_1632FP3,
+    XSENS_EVT_TYPE_1632FP4,
+    XSENS_EVT_TYPE_1632FP9,
+    XSENS_EVT_TYPE_DOUBLE = 40,
+    XSENS_EVT_TYPE_DOUBLE2,
+    XSENS_EVT_TYPE_DOUBLE3,
+    XSENS_EVT_TYPE_DOUBLE4,
+    XSENS_EVT_TYPE_DOUBLE9,
 } XsensEventDataType_t;
 
 // Unionised data sent to user callback
@@ -76,11 +91,35 @@ typedef struct
         uint8_t  u1;
         uint16_t u2;
         uint32_t u4;
+
+        // Single precision
         float    f4;
         float    f4x2[2];
         float    f4x3[3];
         float    f4x4[4];
         float    f4x9[9];
+
+        // Fixed-point 12.20
+        int32_t    fp1220;
+        int32_t    fp1220x2[2];
+        int32_t    fp1220x3[3];
+        int32_t    fp1220x4[4];
+        int32_t    fp1220x9[9];
+
+        // Fixed-point 16.32
+        int64_t    fp1632;
+        int64_t    fp1632x2[2];
+        int64_t    fp1632x3[3];
+        int64_t    fp1632x4[4];
+        int64_t    fp1632x9[9];
+
+        // Double precision
+        double    f8;
+        double    f8x2[2];
+        double    f8x3[3];
+        double    f8x4[4];
+        double    f8x9[9];
+
     } data;
 } XsensEventData_t;
 
