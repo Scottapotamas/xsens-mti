@@ -26,6 +26,9 @@ uint32_t xsens_coalesce_32BE_32LE( uint8_t *source );
 // Read 4 big-endian bytes and return a little-endian float
 float xsens_coalesce_32BE_F32LE( uint8_t *source );
 
+// Converts 6-byte big-endian 'fixed-point' Q16.32 packet format to little-endian
+void xsens_coalesce_48BE_48LE( uint8_t *dest, uint8_t *source );
+
 // Convert quaternion to roll/pitch/yaw angles (in radians)
 void xsens_quaternion_to_euler( float *quaternion, float *euler );
 
