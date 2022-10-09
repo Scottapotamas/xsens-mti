@@ -120,11 +120,15 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
     XsensEventData_t             value       = { 0 };
     const mdata2_decode_rules_t *decode_rule = 0;
 
+    enum XSENS_FLOAT_TYPE number_precision = XSENS_IDENTIFIER_FORMAT_GET_PRECISION( output->id );
+    enum XSENS_COORDINATE_SYSTEM coordinate_system = XSENS_IDENTIFIER_FORMAT_GET_COORD_SYSTEM( output->id );
+    uint16_t id_simplifed = XSENS_IDENTIFIER_FORMAT_SIMPLIFY( output->id );
+    
     // Find the matching XID in the table
     uint8_t table_length = sizeof( xid_decode_table ) / sizeof( mdata2_decode_rules_t );
     for( uint8_t i = 0; i < table_length; i++ )
     {
-        if( xid_decode_table[i].xid == output->id )
+        if( xid_decode_table[i].xid == id_simplifed )
         {
             decode_rule = &xid_decode_table[i];
             break;
@@ -135,10 +139,12 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
     if( decode_rule )
     {
         // The structure describes the union type
-        value.type = decode_rule->type;
+        //  - for situations where non-single precision is used, apply an offset to the enum
+        //    to correctly describe the type as fixed-precision or double, etc
+        value.type = decode_rule->type + ( number_precision * 10 );
 
         // Convert BE data to LE, put it in the right union field
-        switch( decode_rule->type )
+        switch( value.type )
         {
             case XSENS_EVT_TYPE_U8:
                 value.data.u1 = output->payload[0];
@@ -153,21 +159,25 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
                 break;
 
             case XSENS_EVT_TYPE_FLOAT:
+            case XSENS_EVT_TYPE_1220FP:
                 value.data.f4 = xsens_coalesce_32BE_F32LE( &output->payload[0] );
                 break;
 
             case XSENS_EVT_TYPE_FLOAT2:
+            case XSENS_EVT_TYPE_1220FP2:
                 value.data.f4x2[0] = xsens_coalesce_32BE_F32LE( &output->payload[0] );
                 value.data.f4x2[1] = xsens_coalesce_32BE_F32LE( &output->payload[4] );
                 break;
 
             case XSENS_EVT_TYPE_FLOAT3:
+            case XSENS_EVT_TYPE_1220FP3:
                 value.data.f4x3[0] = xsens_coalesce_32BE_F32LE( &output->payload[0] );
                 value.data.f4x3[1] = xsens_coalesce_32BE_F32LE( &output->payload[4] );
                 value.data.f4x3[2] = xsens_coalesce_32BE_F32LE( &output->payload[8] );
                 break;
 
             case XSENS_EVT_TYPE_FLOAT4:
+            case XSENS_EVT_TYPE_1220FP4:
                 value.data.f4x4[0] = xsens_coalesce_32BE_F32LE( &output->payload[0] );
                 value.data.f4x4[1] = xsens_coalesce_32BE_F32LE( &output->payload[4] );
                 value.data.f4x4[2] = xsens_coalesce_32BE_F32LE( &output->payload[8] );
@@ -175,6 +185,7 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
                 break;
 
             case XSENS_EVT_TYPE_FLOAT9:
+            case XSENS_EVT_TYPE_1220FP9:
                 value.data.f4x9[0] = xsens_coalesce_32BE_F32LE( &output->payload[0] );
                 value.data.f4x9[1] = xsens_coalesce_32BE_F32LE( &output->payload[4] );
                 value.data.f4x9[2] = xsens_coalesce_32BE_F32LE( &output->payload[8] );
@@ -184,6 +195,40 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
                 value.data.f4x9[6] = xsens_coalesce_32BE_F32LE( &output->payload[24] );
                 value.data.f4x9[7] = xsens_coalesce_32BE_F32LE( &output->payload[28] );
                 value.data.f4x9[8] = xsens_coalesce_32BE_F32LE( &output->payload[32] );
+                break;
+
+            case XSENS_EVT_TYPE_DOUBLE:
+                xsens_swap_endian_u64( &value.data.f8, &output->payload[0] );
+                break;
+
+            case XSENS_EVT_TYPE_DOUBLE2:
+                xsens_swap_endian_u64( &value.data.f8x2[0], &output->payload[0] );
+                xsens_swap_endian_u64( &value.data.f8x2[1], &output->payload[8] );
+                break;
+
+            case XSENS_EVT_TYPE_DOUBLE3:
+                xsens_swap_endian_u64( &value.data.f8x3[0], &output->payload[0] );
+                xsens_swap_endian_u64( &value.data.f8x3[1], &output->payload[8] );
+                xsens_swap_endian_u64( &value.data.f8x3[2], &output->payload[16] );
+                break;
+
+            case XSENS_EVT_TYPE_DOUBLE4:
+                xsens_swap_endian_u64( &value.data.f8x4[0], &output->payload[0] );
+                xsens_swap_endian_u64( &value.data.f8x4[1], &output->payload[8] );
+                xsens_swap_endian_u64( &value.data.f8x4[2], &output->payload[16] );
+                xsens_swap_endian_u64( &value.data.f8x4[3], &output->payload[24] );
+                break;
+
+            case XSENS_EVT_TYPE_DOUBLE9:
+                xsens_swap_endian_u64( &value.data.f8x9[0], &output->payload[0] );
+                xsens_swap_endian_u64( &value.data.f8x9[1], &output->payload[8] );
+                xsens_swap_endian_u64( &value.data.f8x9[2], &output->payload[16] );
+                xsens_swap_endian_u64( &value.data.f8x9[3], &output->payload[24] );
+                xsens_swap_endian_u64( &value.data.f8x9[4], &output->payload[32] );
+                xsens_swap_endian_u64( &value.data.f8x9[5], &output->payload[40] );
+                xsens_swap_endian_u64( &value.data.f8x9[6], &output->payload[48] );
+                xsens_swap_endian_u64( &value.data.f8x9[7], &output->payload[56] );
+                xsens_swap_endian_u64( &value.data.f8x9[8], &output->payload[64] );
                 break;
 
             default:
