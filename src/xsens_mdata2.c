@@ -213,26 +213,37 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
                 break;
 
             case XSENS_EVT_TYPE_1632FP:
-                xsens_swap_endian_u48( &value.data.fp1632, &output->payload[0] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632, &output->payload[0] );
                 break;
 
             case XSENS_EVT_TYPE_1632FP2:
-
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x2[0], &output->payload[0] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x2[1], &output->payload[6] );
                 break;
 
             case XSENS_EVT_TYPE_1632FP3:
-
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x3[0], &output->payload[0] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x3[1], &output->payload[6] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x3[2], &output->payload[12] );
                 break;
 
             case XSENS_EVT_TYPE_1632FP4:
-                xsens_swap_endian_u48( &value.data.fp1632x4[0], &output->payload[0] );
-                xsens_swap_endian_u48( &value.data.fp1632x4[1], &output->payload[6] );
-                xsens_swap_endian_u48( &value.data.fp1632x4[2], &output->payload[12] );
-                xsens_swap_endian_u48( &value.data.fp1632x4[3], &output->payload[18] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x4[0], &output->payload[0] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x4[1], &output->payload[6] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x4[2], &output->payload[12] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x4[3], &output->payload[18] );
                 break;
 
             case XSENS_EVT_TYPE_1632FP9:
-
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x9[0], &output->payload[0] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x9[1], &output->payload[6] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x9[2], &output->payload[12] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x9[3], &output->payload[18] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x9[4], &output->payload[24] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x9[5], &output->payload[30] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x9[6], &output->payload[36] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x9[7], &output->payload[42] );
+                xsens_coalesce_48BE_48LE( &value.data.fp1632x9[8], &output->payload[48] );
                 break;
 
             case XSENS_EVT_TYPE_DOUBLE:
