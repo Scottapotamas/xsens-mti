@@ -16,17 +16,6 @@ void xsens_swap_endian_u32( uint8_t *dest, uint8_t *source )
     dest[0] = source[3];
 }
 
-// As per manual, big-endian 32-bit first, then BE 16-bit part i.e [b3, b2, b1, b0, b5, b4]
-void xsens_swap_endian_u48( uint8_t *dest, uint8_t *source )
-{
-    dest[0] = source[3];
-    dest[1] = source[2];
-    dest[2] = source[1];
-    dest[3] = source[0];
-    dest[4] = source[5];
-    dest[5] = source[4];
-}
-
 void xsens_swap_endian_u64( uint8_t *dest, uint8_t *source )
 {
     dest[7] = source[0];
@@ -65,6 +54,17 @@ float xsens_coalesce_32BE_F32LE( uint8_t *source )
     return f;
 }
 
+// As per manual, big-endian 32-bit first, then BE 16-bit part i.e [b3, b2, b1, b0, b5, b4]
+void xsens_coalesce_48BE_48LE( uint8_t *dest, uint8_t *source )
+{
+    dest[0] = source[3];
+    dest[1] = source[2];
+    dest[2] = source[1];
+    dest[3] = source[0];
+    dest[4] = source[5];
+    dest[5] = source[4];
+}
+
 void xsens_quaternion_to_euler( float *quaternion, float *euler )
 {
     float w = quaternion[0];
@@ -100,7 +100,7 @@ void xsens_euler_to_quaternion( float *euler, float *quaternion )
     float pitch = euler[1];
     float yaw   = euler[2];
 
-    float cy = cos( yaw * 0.5f );
+    float cy = cos( yaw   * 0.5f );
     float sy = sin( yaw   * 0.5f );
     float cp = cos( pitch * 0.5f );
     float sp = sin( pitch * 0.5f );
@@ -115,20 +115,20 @@ void xsens_euler_to_quaternion( float *euler, float *quaternion )
 
 int32_t xsens_f32_to_fp1220( float value )
 {
-    return round(value * (2UL<<20-1));
+    return round(value * (1UL<<20));
 }
 
 float xsens_fp1220_to_f32( int32_t value )
 {
-    return (float)value / (2UL<<20-1);
+    return (float)value / (1UL<<20);
 }
 
 int64_t xsens_f64_to_fp1632( double value )
 {
-    return (uint64_t)(value * (2ULL<<32-1))&0x0000FFFFFFFFFFFF;
+    return (int64_t)(value * (1ULL<<32))&0x0000FFFFFFFFFFFF;
 }
 
 double xsens_fp1632_to_f64( int64_t value )
 {
-    return (double)(value&0x0000FFFFFFFFFFFF) / (2ULL<<32-1);
+    return (double)(value&0x0000FFFFFFFFFFFF) / (1ULL<<32);
 }
