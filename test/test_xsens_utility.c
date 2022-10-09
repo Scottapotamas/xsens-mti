@@ -224,7 +224,7 @@ void test_into_fp1632( void )
 void test_into_fp1632_negative( void )
 {
     // Value is one-bit higher than 0x24395810 example
-    int64_t expected = 0xFFFFFFFCDBC6A7F0; // Negative/signed equiv from 0x00032439580F
+    int64_t expected = 0xFFFCDBC6A7F0; // Negative/signed equiv from 0x00032439580F
     
     double value = -3.1415;
     int64_t result = xsens_f64_to_fp1632( value );

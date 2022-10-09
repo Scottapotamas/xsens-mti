@@ -16,6 +16,17 @@ void xsens_swap_endian_u32( uint8_t *dest, uint8_t *source )
     dest[0] = source[3];
 }
 
+// As per manual, big-endian 32-bit first, then BE 16-bit part i.e [b3, b2, b1, b0, b5, b4]
+void xsens_swap_endian_u48( uint8_t *dest, uint8_t *source )
+{
+    dest[0] = source[3];
+    dest[1] = source[2];
+    dest[2] = source[1];
+    dest[3] = source[0];
+    dest[4] = source[5];
+    dest[5] = source[4];
+}
+
 void xsens_swap_endian_u64( uint8_t *dest, uint8_t *source )
 {
     dest[7] = source[0];
@@ -114,10 +125,10 @@ float xsens_fp1220_to_f32( int32_t value )
 
 int64_t xsens_f64_to_fp1632( double value )
 {
-    return value * (2ULL<<32-1);
+    return (uint64_t)(value * (2ULL<<32-1))&0x0000FFFFFFFFFFFF;
 }
 
 double xsens_fp1632_to_f64( int64_t value )
 {
-    return (double)value / (2ULL<<32-1);
+    return (double)(value&0x0000FFFFFFFFFFFF) / (2ULL<<32-1);
 }

@@ -138,10 +138,25 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
     // Apply post-processing (BE->LE) strategy specific to the packet type
     if( decode_rule )
     {
-        // The structure describes the union type
-        //  - for situations where non-single precision is used, apply an offset to the enum
-        //    to correctly describe the type as fixed-precision or double, etc
-        value.type = decode_rule->type + ( number_precision * 10 );
+        // The structure describes the typical type
+        value.type = decode_rule->type;
+
+        //  For situations where non-single precision is used, apply an offset to the enum
+        //  to correctly describe the type as fixed-precision or double, etc
+        if( number_precision )
+        {
+            if( decode_rule->type < XSENS_EVT_TYPE_FLOAT )
+            {
+                // Enum offset doesn't apply cleanly for non-float default values
+                // So we 'zero' out the table's value, and use the precision offset to get
+                // the single-value type field of that type
+                value.type = XSENS_EVT_TYPE_FLOAT + ( number_precision * 10 );
+            }
+            else
+            {
+                value.type = decode_rule->type + ( number_precision * 10 );
+            }
+        }
 
         // Convert BE data to LE, put it in the right union field
         switch( value.type )
@@ -195,6 +210,29 @@ void xsens_mdata2_decode_field( mdata2_packet_t *output, callback_event_t evt_cb
                 value.data.f4x9[6] = xsens_coalesce_32BE_F32LE( &output->payload[24] );
                 value.data.f4x9[7] = xsens_coalesce_32BE_F32LE( &output->payload[28] );
                 value.data.f4x9[8] = xsens_coalesce_32BE_F32LE( &output->payload[32] );
+                break;
+
+            case XSENS_EVT_TYPE_1632FP:
+                xsens_swap_endian_u48( &value.data.fp1632, &output->payload[0] );
+                break;
+
+            case XSENS_EVT_TYPE_1632FP2:
+
+                break;
+
+            case XSENS_EVT_TYPE_1632FP3:
+
+                break;
+
+            case XSENS_EVT_TYPE_1632FP4:
+                xsens_swap_endian_u48( &value.data.fp1632x4[0], &output->payload[0] );
+                xsens_swap_endian_u48( &value.data.fp1632x4[1], &output->payload[6] );
+                xsens_swap_endian_u48( &value.data.fp1632x4[2], &output->payload[12] );
+                xsens_swap_endian_u48( &value.data.fp1632x4[3], &output->payload[18] );
+                break;
+
+            case XSENS_EVT_TYPE_1632FP9:
+
                 break;
 
             case XSENS_EVT_TYPE_DOUBLE:
