@@ -208,6 +208,53 @@ void test_from_fp1220( void )
     TEST_ASSERT_EQUAL_FLOAT( expected, result );
 }
 
+void test_fp1220_f32_roundtrip( void )
+{
+    float  seed_value = 0;
+    int32_t fp_result  = 0;
+    float   sp_result  = 0;
+
+    seed_value = 0.00f;
+    fp_result  = xsens_f32_to_fp1220( seed_value );
+    sp_result  = xsens_fp1220_to_f32( fp_result );
+    TEST_ASSERT_EQUAL_FLOAT( seed_value, sp_result );
+
+    seed_value = -0.00f;
+    fp_result  = xsens_f32_to_fp1220( seed_value );
+    sp_result  = xsens_fp1220_to_f32( fp_result );
+    TEST_ASSERT_EQUAL_FLOAT( seed_value, sp_result );
+
+    seed_value = 0.1234567890123456789;
+    fp_result  = xsens_f32_to_fp1220( seed_value );
+    sp_result  = xsens_fp1220_to_f32( fp_result );
+    TEST_ASSERT_EQUAL_FLOAT( seed_value, sp_result );
+
+    seed_value = -0.1234567890123456789;
+    fp_result  = xsens_f32_to_fp1220( seed_value );
+    sp_result  = xsens_fp1220_to_f32( fp_result );
+    TEST_ASSERT_EQUAL_FLOAT( seed_value, sp_result );
+
+    seed_value = 10.000f;
+    fp_result  = xsens_f32_to_fp1220( seed_value );
+    sp_result  = xsens_fp1220_to_f32( fp_result );
+    TEST_ASSERT_EQUAL_FLOAT( seed_value, sp_result );
+
+    seed_value = -10.000f;
+    fp_result  = xsens_f32_to_fp1220( seed_value );
+    sp_result  = xsens_fp1220_to_f32( fp_result );
+    TEST_ASSERT_EQUAL_FLOAT( seed_value, sp_result );
+
+    seed_value = 3.14159265358979323846;
+    fp_result  = xsens_f32_to_fp1220( seed_value );
+    sp_result  = xsens_fp1220_to_f32( fp_result );
+    TEST_ASSERT_EQUAL_FLOAT( seed_value, sp_result );
+
+    seed_value = -3.14159265358979323846;
+    fp_result  = xsens_f32_to_fp1220( seed_value );
+    sp_result  = xsens_fp1220_to_f32( fp_result );
+    TEST_ASSERT_EQUAL_FLOAT( seed_value, sp_result );
+}
+
 void test_into_fp1632( void )
 {
     int64_t expected = 0x000324395810; // 0x0003 integer, 0x24395810 fractional
@@ -241,4 +288,54 @@ void test_from_fp1632( void )
 
     // This particular test has an error slightly under 15x DBL_EPSILON
     TEST_ASSERT_DOUBLE_WITHIN( 0.0000000000000040, expected, result );
+}
+
+void test_fp1632_f64_roundtrip( void )
+{
+    const double flt_epsilon = 0.0000000002;
+
+    double  seed_value = 0;
+    int64_t fp_result  = 0;
+    double  dp_result  = 0;
+
+    seed_value = 0.00;
+    fp_result  = xsens_f64_to_fp1632( seed_value );
+    dp_result  = xsens_fp1632_to_f64( fp_result );
+    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, seed_value, dp_result );
+
+    seed_value = -0.00;
+    fp_result  = xsens_f64_to_fp1632( seed_value );
+    dp_result  = xsens_fp1632_to_f64( fp_result );
+    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, seed_value, dp_result );
+
+    seed_value = 0.1234567890123456789;
+    fp_result  = xsens_f64_to_fp1632( seed_value );
+    dp_result  = xsens_fp1632_to_f64( fp_result );
+    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, seed_value, dp_result );
+
+    seed_value = -0.1234567890123456789;
+    fp_result  = xsens_f64_to_fp1632( seed_value );
+    dp_result  = xsens_fp1632_to_f64( fp_result );
+    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, seed_value, dp_result );
+
+    seed_value = 10.000;
+    fp_result  = xsens_f64_to_fp1632( seed_value );
+    dp_result  = xsens_fp1632_to_f64( fp_result );
+    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, seed_value, dp_result );
+
+    seed_value = -10.000;
+    fp_result  = xsens_f64_to_fp1632( seed_value );
+    dp_result  = xsens_fp1632_to_f64( fp_result );
+    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, seed_value, dp_result );
+
+    seed_value = 3.14159265358979323846;
+    fp_result  = xsens_f64_to_fp1632( seed_value );
+    dp_result  = xsens_fp1632_to_f64( fp_result );
+    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, seed_value, dp_result );
+
+    seed_value = -3.14159265358979323846;
+    fp_result  = xsens_f64_to_fp1632( seed_value );
+    dp_result  = xsens_fp1632_to_f64( fp_result );
+    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, seed_value, dp_result );
+
 }
