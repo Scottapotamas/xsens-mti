@@ -517,3 +517,60 @@ void test_parse_mdata2_number_formats( void )
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT, cb_evt_data_cache[4].type );
     TEST_ASSERT_EQUAL_FLOAT( 27.4375000, cb_evt_data_cache[4].data.f4);
 }
+
+void test_parse_mdata2_number_formats_2( void )
+{
+    // Tests another packet where single, fixed-point 12.20, 16.32, and double formatted outputs are used
+
+    // (PacketCounter, 2 bytes, 65144),
+    // (Quaternion|Float|ENU, 16 bytes,
+    // q0: 0.6447144, q1: -0.00622723, q2: -0.00247884, q3: 0.7643942)),
+    // (MagneticField|Fp1220, 12 bytes,
+    // (magX: 0.9619465, magY: -0.2602215, magZ: 1.7812529)),
+    // (Temperature|Fp1632, 6 bytes, Temp:  24.375000000000),
+    // (Pressure|Double, 8 bytes, Pressure:  101669),
+
+    uint8_t test_packet[] = {   0xFA, 
+                                0xFF, 
+                                0x36, 
+                                0x37, 
+                                0x10, 0x20, 0x02, 0xFE, 0x78, 0x20, 0x10, 0x10, 0x3F, 0x25, 0x0C, 0x01, 0xBB, 0xCC, 0x0D, 0xD7, 0xBB, 0x22, 0x74, 0x0C, 0x3F, 0x43, 0xAF, 0x57, 0xC0, 0x21, 0x0C, 0x00, 0x0F, 0x64, 0x22, 0xFF, 0xFB, 0xD6, 0x22, 0x00, 0x1C, 0x80, 0x03, 0x08, 0x12, 0x06, 0x60, 0x00, 0x00, 0x00, 0x00, 0x18, 0x30, 0x13, 0x04, 0x00, 0x01, 0x8D, 0x25,
+                                0x46 };
+    
+    xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
+
+    // PacketCounter
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_PACKET_COUNT, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_U16, cb_evt_data_cache[0].type );
+    TEST_ASSERT_EQUAL_INT( 65144, cb_evt_data_cache[0].data.u2);
+  
+    // Quaternion
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_QUATERNION, cb_evt_flag_cache[1] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[1].type );
+    float golden_quat[4] = { 0.6447144, -0.00622723, -0.00247884, 0.7643942 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_quat, cb_evt_data_cache[1].data.f4x4, 4);
+
+    // MagneticField
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_MAGNETIC, cb_evt_flag_cache[2] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_1220FP3, cb_evt_data_cache[2].type );
+    float golden_mag[3] = { 0.9619465, -0.2602215, 1.7812529 };
+
+    // Convert to floats
+    float result_mag[3] = { 0 };
+    result_mag[0] = xsens_fp1220_to_f32( cb_evt_data_cache[2].data.fp1220x3[0] );
+    result_mag[1] = xsens_fp1220_to_f32( cb_evt_data_cache[2].data.fp1220x3[1] );
+    result_mag[2] = xsens_fp1220_to_f32( cb_evt_data_cache[2].data.fp1220x3[2] );
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_mag, result_mag, 3);
+
+    // Temperature
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TEMPERATURE, cb_evt_flag_cache[3] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_1632FP, cb_evt_data_cache[3].type );
+    double result_temp = xsens_fp1632_to_f64( cb_evt_data_cache[3].data.fp1632 );
+    TEST_ASSERT_EQUAL_DOUBLE( 24.375000000000, result_temp);
+
+    // Pressure
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_PRESSURE, cb_evt_flag_cache[4] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_DOUBLE, cb_evt_data_cache[4].type );
+    TEST_ASSERT_EQUAL_DOUBLE( 101669, cb_evt_data_cache[4].data.f8);
+
+}
