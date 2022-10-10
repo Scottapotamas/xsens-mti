@@ -592,3 +592,121 @@ void test_parse_mdata2_number_formats_2( void )
     // TEST_ASSERT_EQUAL_INT( 101669, cb_evt_data_cache[4].data.u4);
 
 }
+
+void test_parse_mdata2_rotmatrix_float( void )
+{
+    // (RotationMatrix|Float|ENU, 36 bytes,
+    // (a: -0.21940619, b: -0.97555816, c: 0.01214410, 
+    //  d: 0.97537732, e: -0.21961689, f: -0.02019581, 
+    //  g: 0.02236923, h: 0.00741399, i: 0.99972248))
+
+    uint8_t test_packet[] = {   0xFA, 
+                                0xFF, 
+                                0x36, 
+                                0x27, 
+                                0x20, 0x20, 0x24, 0xBE, 0x60, 0xAC, 0x04, 0xBF, 0x79, 0xBE, 0x2E, 0x3C, 0x46, 0xF8, 0x07, 0x3F, 0x79, 0xB2, 0x54, 0xBE, 0x60, 0xE3, 0x40, 0xBC, 0xA5, 0x71, 0xAF, 0x3C, 0xB7, 0x3F, 0xAE, 0x3B, 0xF2, 0xF1, 0x0C, 0x3F, 0x7F, 0xED, 0xD0, 
+                                0xC8 };
+    
+    xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
+
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ROT_MATRIX, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT9, cb_evt_data_cache[0].type );
+    float golden_rot[9] = {    -0.21940619, -0.97555816,  0.01214410, 
+                                0.97537732, -0.21961689, -0.02019581, 
+                                0.02236923,  0.00741399,  0.99972248 };
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_rot, cb_evt_data_cache[0].data.f4x9, 9);
+
+}
+
+void test_parse_mdata2_rotmatrix_fp1220( void )
+{
+    // (RotationMatrix|Fp1220|ENU, 36 bytes, 
+    // (a:  -0.23230076, b:  -0.97257423, c:   0.01154137, 
+    //  d:   0.97240829, e:  -0.23248863, f:  -0.01924133, 
+    //  g:   0.02139759, h:   0.00675297, i:   0.99974823))
+
+    uint8_t test_packet[] = {   0xFA, 
+                                0xFF, 
+                                0x36, 
+                                0x27, 
+                                0x20, 0x21, 0x24, 0xFF, 0xFC, 0x48, 0x7F, 0xFF, 0xF0, 0x70, 0x56, 0x00, 0x00, 0x2F, 0x46, 0x00, 0x0F, 0x8E, 0xFC, 0xFF, 0xFC, 0x47, 0xBA, 0xFF, 0xFF, 0xB1, 0x30, 0x00, 0x00, 0x57, 0xA5, 0x00, 0x00, 0x1B, 0xA9, 0x00, 0x0F, 0xFE, 0xF8, 
+                                0x1A  };
+    
+    xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
+
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ROT_MATRIX, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_1220FP9, cb_evt_data_cache[0].type );
+    float golden_rot[9] = {  -0.23230076, -0.97257423,  0.01154137, 
+                              0.97240829, -0.23248863, -0.01924133, 
+                              0.02139759,  0.00675297,  0.99974823 };
+    float result_rot[9] = { 0 };
+
+    for( uint8_t i = 0; i < 9; i++ )
+    {
+        result_rot[i] = xsens_fp1220_to_f32( cb_evt_data_cache[0].data.fp1220x9[i] );
+    }
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_rot, result_rot, 9);
+}
+
+void test_parse_mdata2_rotmatrix_fp1632( void )
+{
+    // (RotationMatrix|Fp1632|ENU, 54 bytes,
+    // (a:  -0.23666316, b:  -0.97153002, c:   0.01097167, 
+    //  d:   0.97137016, e:  -0.23683536, f:  -0.01869209, 
+    //  g:   0.02075840, h:   0.00623383, i:   0.99976528))
+
+    uint8_t test_packet[] = {   0xFA, 
+                                0xFF, 
+                                0x36, 
+                                0x39, 
+                                0x20, 0x22, 0x36, 0xC3, 0x6A, 0x0B, 0x00, 0xFF, 0xFF, 0x07, 0x49, 0xCF, 0x00, 0xFF, 0xFF, 0x02, 0xCF, 0x0A, 0x28, 0x00, 0x00, 0xF8, 0xAB, 0xB7, 0x00, 0x00, 0x00, 0xC3, 0x5E, 0xC2, 0x00, 0xFF, 0xFF, 0xFB, 0x36, 0xFE, 0xC0, 0xFF, 0xFF, 0x05, 0x50, 0x6C, 0x38, 0x00, 0x00, 0x01, 0x98, 0x8A, 0x4A, 0x00, 0x00, 0xFF, 0xF0, 0x9E, 0x00, 0x00, 0x00, 
+                                0xA9 };
+    
+    xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
+
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ROT_MATRIX, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_1632FP9, cb_evt_data_cache[0].type );
+    float golden_rot[9] = { -0.23666316, -0.97153002,  0.01097167, 
+                             0.97137016, -0.23683536, -0.01869209, 
+                             0.02075840,  0.00623383,  0.99976528 };
+
+    double result_rot[9] = { 0 };
+
+    for( uint8_t i = 0; i < 9; i++ )
+    {
+        result_rot[i] = xsens_fp1632_to_f64( cb_evt_data_cache[0].data.fp1220x9[i] );
+        TEST_ASSERT_EQUAL_DOUBLE( golden_rot[i], result_rot[i] );
+    }
+}
+
+void test_parse_mdata2_rotmatrix_double( void )
+{
+    // (RotationMatrix|Double|ENU, 72 bytes,
+    // (a:  -0.23455584, b:  -0.97204965, c:   0.01015384, 
+    //  d:   0.97191745, e:  -0.23470223, f:  -0.01706769, 
+    //  g:   0.01897377, h:   0.00586537, i:   0.99980283))
+
+    uint8_t test_packet[] = {   0xFA, 
+                                0xFF, 
+                                0x36, 
+                                0x4B, 
+                                0x20, 0x23, 0x48, 0xBF, 0xCE, 0x05, 0xED, 0x00, 0x00, 0x00, 0x00, 0xBF, 0xEF, 0x1B, 0x07, 0xE0, 0x00, 0x00, 0x00, 0x3F, 0x84, 0xCB, 0x89, 0xA0, 0x00, 0x00, 0x00, 0x3F, 0xEF, 0x19, 0xF2, 0xA0, 0x00, 0x00, 0x00, 0xBF, 0xCE, 0x0A, 0xB9, 0x00, 0x00, 0x00, 0x00, 0xBF, 0x91, 0x7A, 0x31, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x93, 0x6D, 0xDC, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x78, 0x06, 0x49, 0x80, 0x00, 0x00, 0x00, 0x3F, 0xEF, 0xFE, 0x62, 0x80, 0x00, 0x00, 0x00, 
+                                0x3C };
+    
+    xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
+
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ROT_MATRIX, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_DOUBLE9, cb_evt_data_cache[0].type );
+    double golden_rot[9] = {  -0.23455584, -0.97204965,  0.01015384, 
+                               0.97191745, -0.23470223, -0.01706769, 
+                               0.01897377,  0.00586537,  0.99980283 };
+
+    double result_rot[9] = { 0 };
+
+    for( uint8_t i = 0; i < 9; i++ )
+    {
+        result_rot[i] = xsens_fp1632_to_f64( cb_evt_data_cache[0].data.fp1220x9[i] );
+        TEST_ASSERT_EQUAL_DOUBLE( golden_rot[i], result_rot[i] );
+    }     
+}
