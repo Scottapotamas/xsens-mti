@@ -218,6 +218,7 @@ void test_parse_mdata2_quat_minimal( void )
     // Quaternion
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_QUATERNION, cb_evt_flag_cache[2] );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[2].type );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ENU, cb_evt_data_cache[2].coord_ref );
     float golden_quat[4] = { 0.94455600, -0.32308814, 0.01374718, -0.05691256 };
     TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_quat, cb_evt_data_cache[2].data.f4x4, 4);
 
@@ -276,6 +277,7 @@ void test_parse_mdata2_shake_clipping( void )
     // Quaternion
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_QUATERNION, cb_evt_flag_cache[2] );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[2].type );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ENU, cb_evt_data_cache[2].coord_ref );
     float golden_quat[4] = { 0.66437358, -0.42175028, 0.02720882, 0.61643654 };
     TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_quat, cb_evt_data_cache[2].data.f4x4, 4);
 
@@ -390,6 +392,7 @@ void test_parse_mdata2_full( void )
     // Quaternion
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_QUATERNION, cb_evt_flag_cache[2] );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[2].type );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ENU, cb_evt_data_cache[2].coord_ref );
     float golden_quat[4] = { 0.71045315, 0.69453555, -0.07777759, -0.08262789 };
     TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_quat, cb_evt_data_cache[2].data.f4x4, 4);
 
@@ -489,6 +492,7 @@ void test_parse_mdata2_number_formats( void )
   
     // EulerAngles
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_EULER, cb_evt_flag_cache[1] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ENU, cb_evt_data_cache[1].coord_ref );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_1220FP3, cb_evt_data_cache[1].type );
     float golden_pry[3] = { -0.9826155, -0.1385441, 115.7006302 };
 
@@ -560,6 +564,7 @@ void test_parse_mdata2_number_formats_2( void )
     // Quaternion
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_QUATERNION, cb_evt_flag_cache[1] );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT4, cb_evt_data_cache[1].type );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ENU, cb_evt_data_cache[1].coord_ref );
     float golden_quat[4] = { 0.6447144, -0.00622723, -0.00247884, 0.7643942 };
     TEST_ASSERT_EQUAL_FLOAT_ARRAY( golden_quat, cb_evt_data_cache[1].data.f4x4, 4);
 
@@ -610,6 +615,7 @@ void test_parse_mdata2_rotmatrix_float( void )
     xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
 
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_ROT_MATRIX, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ENU, cb_evt_data_cache[0].coord_ref );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_FLOAT9, cb_evt_data_cache[0].type );
     float golden_rot[9] = {    -0.21940619, -0.97555816,  0.01214410, 
                                 0.97537732, -0.21961689, -0.02019581, 
@@ -635,6 +641,7 @@ void test_parse_mdata2_rotmatrix_fp1220( void )
     xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
 
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_ROT_MATRIX, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ENU, cb_evt_data_cache[0].coord_ref );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_1220FP9, cb_evt_data_cache[0].type );
     float golden_rot[9] = {  -0.23230076, -0.97257423,  0.01154137, 
                               0.97240829, -0.23248863, -0.01924133, 
@@ -669,6 +676,7 @@ void test_parse_mdata2_rotmatrix_fp1632( void )
     xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
 
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_ROT_MATRIX, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ENU, cb_evt_data_cache[0].coord_ref );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_1632FP9, cb_evt_data_cache[0].type );
     float golden_rot[9] = { -0.23666316, -0.97153002,  0.01097167, 
                              0.97137016, -0.23683536, -0.01869209, 
@@ -703,6 +711,7 @@ void test_parse_mdata2_rotmatrix_double( void )
     xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
 
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_ROT_MATRIX, cb_evt_flag_cache[0] );
+    TEST_ASSERT_EQUAL_INT( XSENS_EVT_ENU, cb_evt_data_cache[0].coord_ref );
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_TYPE_DOUBLE9, cb_evt_data_cache[0].type );
     double golden_rot[9] = {  -0.23455584, -0.97204965,  0.01015384, 
                                0.97191745, -0.23470223, -0.01706769, 
