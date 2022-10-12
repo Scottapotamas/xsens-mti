@@ -511,11 +511,11 @@ void test_parse_mdata2_number_formats( void )
     result_dq[2] = xsens_fp1632_to_f64( cb_evt_data_cache[2].data.fp1632x4[2] );
     result_dq[3] = xsens_fp1632_to_f64( cb_evt_data_cache[2].data.fp1632x4[3] );
 
-    double flt_epsilon = 0.00000000000050000;
-    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, golden_dq[0], result_dq[0] );
-    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, golden_dq[1], result_dq[1] );
-    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, golden_dq[2], result_dq[2] );
-    TEST_ASSERT_DOUBLE_WITHIN( flt_epsilon, golden_dq[3], result_dq[3] );
+    double dbl_epsilon = 0.00000000000050000;
+    TEST_ASSERT_DOUBLE_WITHIN( dbl_epsilon, golden_dq[0], result_dq[0] );
+    TEST_ASSERT_DOUBLE_WITHIN( dbl_epsilon, golden_dq[1], result_dq[1] );
+    TEST_ASSERT_DOUBLE_WITHIN( dbl_epsilon, golden_dq[2], result_dq[2] );
+    TEST_ASSERT_DOUBLE_WITHIN( dbl_epsilon, golden_dq[3], result_dq[3] );
 
     // MagneticField
     TEST_ASSERT_EQUAL_INT( XSENS_EVT_MAGNETIC, cb_evt_flag_cache[3] );
@@ -651,6 +651,9 @@ void test_parse_mdata2_rotmatrix_fp1220( void )
 
 void test_parse_mdata2_rotmatrix_fp1632( void )
 {
+    // Set epsilon 'high' because MTManager only prints single precision...
+    double fp1632_epsilon = 0.0000001;
+
     // (RotationMatrix|Fp1632|ENU, 54 bytes,
     // (a:  -0.23666316, b:  -0.97153002, c:   0.01097167, 
     //  d:   0.97137016, e:  -0.23683536, f:  -0.01869209, 
@@ -675,13 +678,16 @@ void test_parse_mdata2_rotmatrix_fp1632( void )
 
     for( uint8_t i = 0; i < 9; i++ )
     {
-        result_rot[i] = xsens_fp1632_to_f64( cb_evt_data_cache[0].data.fp1220x9[i] );
-        TEST_ASSERT_EQUAL_DOUBLE( golden_rot[i], result_rot[i] );
+        result_rot[i] = xsens_fp1632_to_f64( cb_evt_data_cache[0].data.fp1632x9[i] );
+        TEST_ASSERT_DOUBLE_WITHIN( fp1632_epsilon,golden_rot[i], result_rot[i] );
     }
 }
 
 void test_parse_mdata2_rotmatrix_double( void )
 {
+    // Set epsilon 'high' because MTManager only prints single precision...
+    double dbl_epsilon = 0.00000001;
+
     // (RotationMatrix|Double|ENU, 72 bytes,
     // (a:  -0.23455584, b:  -0.97204965, c:   0.01015384, 
     //  d:   0.97191745, e:  -0.23470223, f:  -0.01706769, 
@@ -702,11 +708,8 @@ void test_parse_mdata2_rotmatrix_double( void )
                                0.97191745, -0.23470223, -0.01706769, 
                                0.01897377,  0.00586537,  0.99980283 };
 
-    double result_rot[9] = { 0 };
-
     for( uint8_t i = 0; i < 9; i++ )
     {
-        result_rot[i] = xsens_fp1632_to_f64( cb_evt_data_cache[0].data.fp1220x9[i] );
-        TEST_ASSERT_EQUAL_DOUBLE( golden_rot[i], result_rot[i] );
+        TEST_ASSERT_DOUBLE_WITHIN( dbl_epsilon, golden_rot[i], cb_evt_data_cache[0].data.f8x9[i] );
     }     
 }
