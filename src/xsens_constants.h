@@ -82,10 +82,19 @@ typedef enum
     XSENS_EVT_TYPE_DOUBLE9,
 } XsensEventDataType_t;
 
+// Enum describes possible types sent to user in the event data union
+typedef enum
+{
+    XSENS_EVT_ENU = 0x0,
+    XSENS_EVT_NED = 0x4,
+    XSENS_EVT_NWU = 0x8,
+} XsensEventTangentPlaneFormat_t;
+
 // Unionised data sent to user callback
 typedef struct
 {
     XsensEventDataType_t type;
+    XsensEventTangentPlaneFormat_t coord_ref;
     union
     {
         uint8_t  u1;
@@ -329,7 +338,6 @@ enum XSENS_COORDINATE_SYSTEM
     XSENS_COORD_NWU = 0x8,
 };
 
-// TODO: consider enum cleanup, and supporting these in the callback union?
 enum XSENS_FLOAT_TYPE
 {
     XSENS_FLOAT_SINGLE    = 0x0,
