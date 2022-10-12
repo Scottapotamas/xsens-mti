@@ -129,6 +129,13 @@ int64_t xsens_f64_to_fp1632( double value )
 }
 
 double xsens_fp1632_to_f64( int64_t value )
-{
-    return (double)(value&0x0000FFFFFFFFFFFF) / (1ULL<<32);
+{   
+    // Is the sign-bit set?
+    if( value&0x0000800000000000 )
+    {
+        // Set the unused bytes, the division will handle -ve
+        value |= 0xFFFF000000000000;
+    }
+
+    return (double)(value) / (1ULL<<32);
 }
