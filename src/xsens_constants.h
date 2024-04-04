@@ -10,12 +10,19 @@ extern "C" {
 
 // Library Related Abstractions
 
+#ifndef XSENS_PAYLOAD_BUFFER_SIZE
+    // Library users can define their own payload size 
+    // Default to the largest possible packet size
+    #define XSENS_PAYLOAD_BUFFER_SIZE 2048
+#endif
+
+
 // The basic concept of a valid decoded packet
 typedef struct
 {
     uint8_t  message_id;
     uint16_t length;
-    uint8_t  payload[2048]; // xsens 'extended packets' can be up to 2kB
+    uint8_t  payload[XSENS_PAYLOAD_BUFFER_SIZE]; // xsens 'extended packets' can be up to 2kB
 } xsens_packet_buffer_t;
 
 #define XSENS_PACKET_BUF_EMPTY { .message_id = 0, .length = 0, .payload = {0} }
