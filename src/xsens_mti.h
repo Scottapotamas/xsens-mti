@@ -67,6 +67,7 @@ void xsens_mti_request( xsens_interface_t *interface, uint8_t id );
 void xsens_mti_set_baudrate( xsens_interface_t *interface, XsensBaudSetting_t baudrate );
 void xsens_mti_reset_orientation( xsens_interface_t *interface, XsensOrientationSetting_t code );
 void xsens_mti_set_configuration( xsens_interface_t *interface, XsensFrequencyConfig_t config[], uint8_t num_config );
+void xsens_mti_set_option_flags( xsens_interface_t *interface, uint32_t set_flags, uint32_t clear_flags );
 
 #ifdef __cplusplus
 }

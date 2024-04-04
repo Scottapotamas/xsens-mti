@@ -334,7 +334,24 @@ void xsens_mti_set_configuration( xsens_interface_t *interface, XsensFrequencyCo
     }
 }
 
+// User needs to bitwise or a series of desired flags using XSENS_OPTION_FLAGS enum values
+// The IMU takes two fields, one for bits to set, another for bits to clear
+// Read MT LowLevel documentation for precedence edgecases
+void xsens_mti_set_option_flags( xsens_interface_t *interface, uint32_t set_flags, uint32_t clear_flags )
+{
+    if( interface )
+    {
+        xsens_packet_buffer_t packet = { 0 };
+        packet.message_id = MT_SETOPTIONFLAGS;
 
+        // LE to BE conversion directly into the output buffer...
+        xsens_swap_endian_u32( &packet.payload[0], (uint8_t*)&set_flags   );
+        xsens_swap_endian_u32( &packet.payload[4], (uint8_t*)&clear_flags );
+        packet.length = 8;    
+
+        xsens_mti_send( interface, &packet );
+    }
+}
 
 void xsens_internal_handle_device_id( xsens_packet_buffer_t *packet )
 {
