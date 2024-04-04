@@ -24,9 +24,11 @@ This library _aims_ to provide a more sane approach, with application code not r
 
 MTManager was used with various output configurations to capture real packets alongside decoded reference outputs (see `/docs/mtmanager_packets.md`). These packets back the test-driven development approach of the library, while the [MT Low Level Documentation PDF](https://www.xsens.com/hubfs/Downloads/Manuals/MT_Low-Level_Documentation.pdf) was used as reference material.
 
-I've tested the library against a MTi-300 connected to a STM32F4 discovery board via RS232 transceiver.
+I've tested the library against a MTi-300 connected to a STM32F4 discovery board via RS232 transceiver, and a custom MTi-2 and STM32F4 board.
 
 I use this library in production with several MTi-300 units connected to a custom STM32F429 controller, also through a RS232 transceiver.
+
+Another user has reported success with MTi-7.
 
 ## What's the catch?
 
@@ -102,10 +104,10 @@ The xsens packet specification allows for 'extended length' payloads, up to `204
 
 Current implementation in this library allows for these with a sufficiently large buffer. This means the default library implementation will exhaust RAM on particularly constrained targets like Atmel 328p (Arduino Uno).
 
-If you find yourself in this unique situation,
+If you find yourself in this unique situation, either use your build system to define `XSENS_PAYLOAD_BUFFER_SIZE` during build, or
 
 1. Open `/src/xsens_constants.h` in your editor
-2. Manually reduce the buffer length in `xsens_packet_buffer_t` to something larger than `255`, i.e. `uint8_t  payload[256];`
+2. Manually define a new `XSENS_PAYLOAD_BUFFER_SIZE` at the top of the file, with a value larger than `255`.
 3. Try building and hope it fits on your micro.
 4. Reconfigure your IMU with MTManager to disable GNSS `PVT` and/or `SatInfo` packets, as these are most likely to need large packets.
 4. Re-think your system design, as your IMU is massively overkill for your requirements or your micro is inadequate for your task! 
