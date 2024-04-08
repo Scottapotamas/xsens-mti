@@ -13,7 +13,7 @@ uint32_t measurement_timer = 0;
 void handle_ack_gotoconfig( xsens_packet_buffer_t *packet );
 void handle_ack_gotomeasurement( xsens_packet_buffer_t *packet );
 void handle_ack_outputconfiguration( xsens_packet_buffer_t *packet );
-void handle_ack_setoptionflags( xsens_packet_buffer_t *packet )
+void handle_ack_setoptionflags( xsens_packet_buffer_t *packet );
 
 typedef enum {
     ACK_NONE = 0,
