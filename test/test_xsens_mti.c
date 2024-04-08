@@ -17,6 +17,16 @@
 xsens_interface_t test_imu = { 0 };
 
 uint32_t mocked_fn_override_called = 0;
+bool ack_config = false;
+
+// User-space callback overrides
+void handle_ack_gotoconfig( xsens_packet_buffer_t *packet );
+
+void handle_ack_gotoconfig( xsens_packet_buffer_t *packet )
+{
+    ack_config = true;
+}
+
 
 // PRIVATE FUNCTIONS
 
@@ -47,6 +57,8 @@ void setUp(void)
     memset( &test_imu, 0, sizeof(test_imu) );
     test_imu.output_cb = &mock_output_function;
     test_imu.event_cb = &mock_event_function;
+
+    ack_config = false;
 }
  
 void tearDown(void)
@@ -54,7 +66,6 @@ void tearDown(void)
 
 }
 
-// TESTS
 void test_parse_basic( void )
 {   
     // Simulate the IMU sending a GoToConfigAck packet
@@ -63,6 +74,9 @@ void test_parse_basic( void )
         // MID - 0x31
         // Size is 0x00
         // CRC is 0xD0
+
+    // Setup userspace callback
+    xsens_mti_override_id_handler( MT_ACK_GOTOCONFIG, &handle_ack_gotoconfig );
 
     uint8_t test_packet[] = {   0xFA, 
                                 0xFF, 
@@ -75,13 +89,17 @@ void test_parse_basic( void )
         xsens_mti_parse( &test_imu, test_packet[i]);
     }
 
-    TEST_IGNORE();
+    // Expect the callback to have fired
+    TEST_ASSERT_TRUE( ack_config );
 }
 
 void test_parse_buffer( void )
 {   
     // Check that the buffer helper function behaves the same
     // as the basic test above
+    // Setup userspace callback
+    xsens_mti_override_id_handler( MT_ACK_GOTOCONFIG, &handle_ack_gotoconfig );
+
     uint8_t test_packet[] = {   0xFA, 
                                 0xFF, 
                                 0x31, 
@@ -89,9 +107,7 @@ void test_parse_buffer( void )
                                 0xD0 };
 
     xsens_mti_parse_buffer( &test_imu, test_packet, sizeof(test_packet));
-    
-    TEST_IGNORE();
-
+    TEST_ASSERT_TRUE( ack_config );
 }
 
 void test_handler_override( void )
