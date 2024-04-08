@@ -239,6 +239,46 @@ void test_request_runselftest( void )
     TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
 }
 
+// From MT manual example, page 24
+void test_set_option_flags( void )
+{
+    // Enable AHS
+    uint8_t expected[] = {  0xFA,
+                            0xFF,
+                            0x48,
+                            0x08,
+                            0x00, 0x00, 0x00, 0x10, // Set flags
+                            0x00, 0x00, 0x00, 0x00, // Clear flags
+                            0xA1 };
+
+    uint32_t set_flags = 0;
+    uint32_t reset_flags = 0;
+    XSENS_OPTION_FLAG_SET(set_flags, XSENS_OPTFLAG_ENABLE_AHS);
+    xsens_mti_set_option_flags( &test_imu, set_flags, reset_flags );
+
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
+}
+
+// From MT manual example, page 23
+void test_set_and_reset_option_flags( void )
+{
+    // Set DisableAutoStore and clear DisableAutoMeasurement
+    uint8_t expected[] = {  0xFA,
+                            0xFF,
+                            0x48,
+                            0x08,
+                            0x00, 0x00, 0x00, 0x01, // Set flags
+                            0x00, 0x00, 0x00, 0x02, // Clear flags
+                            0xAE };
+
+    uint32_t set_flags = 0;
+    uint32_t reset_flags = 0;
+    XSENS_OPTION_FLAG_SET(set_flags, XSENS_OPTFLAG_DISABLE_AUTOSTORE);
+    XSENS_OPTION_FLAG_SET(reset_flags, XSENS_OPTFLAG_DISABLE_AUTOMEASUREMENT);
+    xsens_mti_set_option_flags( &test_imu, set_flags, reset_flags );
+
+    TEST_ASSERT_EQUAL_HEX8_ARRAY( &expected, &outbound_cache, sizeof(expected) );
+}
 
 // From MT manual example, page 66
 void test_set_configuration( void )
