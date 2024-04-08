@@ -1,5 +1,5 @@
 // Configure the library to support writing to the IMU, 
-// used for configuration of baud-rate, settings etc without MTManager
+// used for configuration of baud-rate, output values, options, etc without MTManager
 
 #include "xsens_mti.h"      // main library
 #include "xsens_utility.h"
@@ -13,12 +13,14 @@ uint32_t measurement_timer = 0;
 void handle_ack_gotoconfig( xsens_packet_buffer_t *packet );
 void handle_ack_gotomeasurement( xsens_packet_buffer_t *packet );
 void handle_ack_outputconfiguration( xsens_packet_buffer_t *packet );
+void handle_ack_setoptionflags( xsens_packet_buffer_t *packet )
 
 typedef enum {
     ACK_NONE = 0,
     ACK_CONFIG,
     ACK_MEASUREMENT,
-    ACK_CONFIGURED
+    ACK_CONFIGURED,
+    ACK_OPTIONFLAGS,
 } ACKFlags_t;
 
 ACKFlags_t ack_flag = ACK_NONE;
@@ -39,6 +41,8 @@ typedef enum {
     STATE_ACK_CONFIG_MODE,
     STATE_SET_OUTPUT_CONFIG,
     STATE_ACK_OUTPUT_CONFIG,
+    STATE_SET_OPTION_FLAGS,
+    STATE_ACK_OPTION_FLAGS,
     STATE_REQUEST_MEASUREMENT_MODE,
     STATE_ACK_MEASUREMENT_MODE,
 } DemoStates_t;
@@ -57,6 +61,7 @@ void setup( void )
     xsens_mti_override_id_handler( MT_ACK_GOTOCONFIG, &handle_ack_gotoconfig );
     xsens_mti_override_id_handler( MT_ACK_GOTOMEASUREMENT, &handle_ack_gotomeasurement );
     xsens_mti_override_id_handler( MT_ACK_OUTPUTCONFIGURATION, &handle_ack_outputconfiguration );
+    xsens_mti_override_id_handler( MT_ACK_OPTIONFLAGS, &handle_ack_setoptionflags );
 
     Serial.println("Configuration demo starting...");
 
@@ -152,6 +157,41 @@ void loop( void )
             if( ack_flag == ACK_CONFIGURED)
             {
                 Serial.println("IMU confirmed config...");
+                demo_state = STATE_SET_OPTION_FLAGS;
+                ack_flag   = ACK_NONE;
+            }
+        break;
+
+        case STATE_SET_OPTION_FLAGS:
+        {
+            Serial.println("Setting option flags...");
+
+            // To enable a feature we send the corresponding flag bit in the SetFlags word
+            // To disable the feature, we set the relevant bit in the ClearFlags word
+            uint32_t set_flags = 0;
+            uint32_t clear_flags = 0;
+
+            // Multiple bits can be set at once
+            XSENS_OPTION_FLAG_SET(set_flags, XSENS_OPTFLAG_DISABLE_AUTOSTORE);
+            XSENS_OPTION_FLAG_SET(set_flags, XSENS_OPTFLAG_ENABLE_AHS);
+
+            // We aren't clearing any flag right now, but the same approach is used
+            // XSENS_OPTION_FLAG_SET(reset_flags, XSENS_OPTFLAG_DISABLE_AUTOSTORE);
+
+            // Send them to the IMU
+            xsens_mti_set_option_flags( &imu_interface, set_flags, clear_flags );
+
+            demo_state = STATE_ACK_OPTION_FLAGS;
+        }
+        break;
+
+        case STATE_ACK_OPTION_FLAGS:
+            // TODO: Optionally read response payload to double-check settings
+
+            if( ack_flag == ACK_OPTIONFLAGS)
+            {
+                // We're done with configuration, we want to sample some data now
+                Serial.println("IMU confirmed option flags...");
                 demo_state = STATE_REQUEST_MEASUREMENT_MODE;
                 ack_flag   = ACK_NONE;
             }
@@ -205,6 +245,11 @@ void handle_ack_gotomeasurement( xsens_packet_buffer_t *packet )
 void handle_ack_outputconfiguration( xsens_packet_buffer_t *packet )
 {
     ack_flag = ACK_CONFIGURED;
+}
+
+void handle_ack_setoptionflags( xsens_packet_buffer_t *packet )
+{
+    ack_flag = ACK_OPTIONFLAGS;
 }
 
 // MData2 callback for IMU events
